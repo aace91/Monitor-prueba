@@ -1,0 +1,15 @@
+{
+  "name": "nusoap",
+  "homepage": "https://github.com/econea/nusoap",
+  "version": "0.9.6",
+  "_release": "0.9.6",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.9.6",
+    "commit": "2f6bbd0e2df2d75a87bb8a21a3f281e3d791266b"
+  },
+  "_source": "https://github.com/econea/nusoap.git",
+  "_target": "^0.9.6",
+  "_originalSource": "econea/nusoap",
+  "_direct": true
+}

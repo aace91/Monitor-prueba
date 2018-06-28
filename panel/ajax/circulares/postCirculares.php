@@ -1,0 +1,73 @@
+<?php
+include_once('./../../../checklogin.php');
+include('./../../../url_archivos.php');
+
+if($loggedIn == false){ 
+	echo json_encode( array("error" => 'La sesion del usuario ha finalizado. Por favor, inicie nuevamente.'));
+	exit();
+}
+/*
+ * DataTables example server-side processing script.
+ *
+ * Please note that this script is intentionally extremely simply to show how
+ * server-side processing can be implemented, and probably shouldn't be used as
+ * the basis for a large complex system. It is suitable for simple use cases as
+ * for learning.
+ *
+ * See http://datatables.net/usage/server-side for full details on the server-
+ * side processing requirements of DataTables.
+ *
+ * @license MIT - http://datatables.net/license_mit
+ */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Easy set variables
+ */
+
+// DB table to use
+$table = 'permisos_pedimentos';
+
+// Table's primary key
+$primaryKey = 'id_circular';
+
+// Array of database columns which should be read and sent back to DataTables.
+// The `db` parameter represents the column name in the database, while the `dt`
+// parameter represents the DataTables column identifier. In this case object
+// parameter names
+$columns = array(
+	array( 'db' => 'id_circular',     'dt' => 'id_circular' ),
+	array( 'db' => 'tipo',     'dt' => 'tipo' ),
+	array( 'db' => 'asunto',     'dt' => 'asunto' ),
+	array( 'db' => 'fecha',     'dt' => 'fecha', 'formatter' => function( $d, $row ) {
+		if ($d==''){
+			return '';
+		}else{				
+			return date( 'd/m/Y H:i A', strtotime($d)); 
+		}               
+	})
+);
+
+// SQL server connection information
+$sql_details = array(
+	'user' => $mysqluser,
+	'pass' => $mysqlpass,
+	'db'   => $mysqldb,
+	'host' => $mysqlserver
+);
+
+// Main query to actually get the data
+$baseSql = "SELECT id_circular, tipo, asunto, IF(fecha_enviado IS NULL, fecha_insertado, fecha_enviado) AS fecha
+			FROM bodega.circulares
+			WHERE fecha_eliminado IS NULL";
+
+require( '../../ssp.class.php' );
+echo json_encode(
+	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns )
+);
+
+
+
+
+
+
+
