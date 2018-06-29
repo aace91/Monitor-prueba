@@ -11,5 +11,5 @@
 * Configurar conexion ODBC 32 cnxpedimentos
 * Configurar conexion ODBC bodegamysql 
 
-*Prueba juan carlos
+* Prueba juan carlos
 * Comentario de Marco Prueba *
