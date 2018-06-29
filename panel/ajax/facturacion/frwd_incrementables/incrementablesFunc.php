@@ -2,7 +2,7 @@
 include_once('./../../../../checklogin.php');
 include('./../../../../connect_dbsql.php');
 include('./../../../../url_archivos.php');
-include('./../../../../bower_components/NuSOAP/lib/nusoap.php');
+include('./../../../../bower_components/nusoap/src/nusoap.php');
 
 $bDebug = ((strpos($_SERVER['REQUEST_URI'], 'pruebas/') !== false)? true : false);
 
