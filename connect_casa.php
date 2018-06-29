@@ -8,7 +8,7 @@ $clavec="";
 //realizamos la conexion mediante odbc
 $odbccasa=odbc_connect($dsn, $usuarioc, $clavec);
 if (!$odbccasa){
-	exit(json_encode (array("Codigo"=>-1, "Mensaje"=>"Error al conectarse a la base de datos de pedimentos [CASA]")));
+	exit(json_encode (array("Codigo"=>-1, "Mensaje"=>"Error al conectarse a la base de datos de pedimentos [CASA]", "error"=>"Error al conectarse a la base de datos de pedimentos [CASA]")));
 }
 
 ?>
