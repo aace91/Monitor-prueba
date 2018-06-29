@@ -10,4 +10,3 @@
 * Habilitar extensiones de PHP (odbc, interbase, pdo_firebird, pdo_obdc)
 
 cambais
-jbnkasfdhklashdfk
