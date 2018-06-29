@@ -464,116 +464,6 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 				</div>
 			</div>
 		</div>
-
-		<!-- MODAL LOAD CONFIGURACION -->
-		<div id="modalloadconfig" class="modal fade" style="z-index:9999;">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content">
-					<div class="modal-body">
-						<div id="modalloadconfig_mensaje"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<!-- MESSAGE BOX OK -->
-		<div id="modalmessagebox_ok" class="modal fade" style="z-index:9999;">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4 class="modal-title"><span id ="modalmessagebox_ok_titulo"> </span></h4>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="row">
-							<div class="col-xs-12">
-								<div class="alert alert-success" style="margin-bottom:0px;">
-									<div id="modalmessagebox_ok_mensaje"></div>
-								</div>
-							</div>
-						</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-info" data-dismiss="modal" style="width:150px">OK</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<!-- MESSAGE BOX ERROR-->
-		<div id="modalmessagebox_error" class="modal fade" style="z-index:9999;">
-		    <div class="modal-dialog">
-		        <div class="modal-content">
-		            <div class="modal-header">
-		                <button type="button" class="close" data-dismiss="modal">&times;</button>
-		                <h4 class="modal-title"><span id ="modalmessagebox_error_span"> </span></h4>
-		            </div>
-		            <div class="modal-body">
-		                <div class="row">
-		                    <div class="col-xs-12">
-								<div class="alert alert-danger" style="margin-bottom:0px;">
-									<div id="modalmessagebox_error_mensaje"></div>
-								</div>
-		                    </div>
-		                </div>
-		            </div>
-		            <div class="modal-footer">
-		                <button type="button" class="btn btn-info" data-dismiss="modal" style="width:150px">OK</button>
-		            </div>
-		        </div>
-		    </div>
-		</div>	
-
-		<!-- MODAL CONFIRM -->
-		<div id="modalconfirm" class="modal fade" style="z-index:9999;">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title"><span id ="modalconfirm_title"> </span></h4>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-xs-2 text-center">
-								<i class="fa fa-exclamation-triangle fa-3x"></i>
-							</div>
-							<div class="col-xs-10">
-								<div id="modalconfirm_mensaje"></div>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button id="modalconfirm_btn_cancel" type="button" class="btn btn-danger pull-left"><i class="fa fa-ban"></i> Cancelar</button>
-						<button id="modalconfirm_btn_ok" type="button" class="btn btn-success"><i class="fa fa-check"></i> Aceptar</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- FRACCION ORIGINAL :: ELMINAR R8VA PARTIDA PEDIMENTO (FRACCI)-- >
-		<div id="modalfracciori" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="alta" aria-hidden="true" data-backdrop="static">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title">Fraccion Original</h4>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-xs-12">
-								<div class="form-group">
-									<label>Fracci&oacute;n Original:</label>
-									<input id="itxt_mdl_fraccion_original" class="form-control text-uppercase" type="text" maxlength="255">
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button id="modal_btn_eliminar_r8va" type="button" class="btn btn-warning" OnClick="javascript:fnc_ajax_eliminar_regla8va_parped_cierre_noweb(0); return false;"><i class="fa fa-trash"></i> Eliminar Regla</button>
-					</div>
-				</div>
-			</div>
-		</div-->
 		
 		<!-- AGREGAR REGLA 8VA A FRACCION -->
 		<div id="modalr8va_fracci" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="alta" aria-hidden="true" data-backdrop="static">
@@ -765,6 +655,116 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 				</div>
 			</div>
 		</div>
+		
+		<!-- MODAL LOAD CONFIGURACION -->
+		<div id="modalloadconfig" class="modal fade" style="z-index:9999;">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div id="modalloadconfig_mensaje"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- MESSAGE BOX OK -->
+		<div id="modalmessagebox_ok" class="modal fade" style="z-index:9999;">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title"><span id ="modalmessagebox_ok_titulo"> </span></h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="row">
+							<div class="col-xs-12">
+								<div class="alert alert-success" style="margin-bottom:0px;">
+									<div id="modalmessagebox_ok_mensaje"></div>
+								</div>
+							</div>
+						</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info" data-dismiss="modal" style="width:150px">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- MESSAGE BOX ERROR-->
+		<div id="modalmessagebox_error" class="modal fade" style="z-index:9999;">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		                <button type="button" class="close" data-dismiss="modal">&times;</button>
+		                <h4 class="modal-title"><span id ="modalmessagebox_error_span"> </span></h4>
+		            </div>
+		            <div class="modal-body">
+		                <div class="row">
+		                    <div class="col-xs-12">
+								<div class="alert alert-danger" style="margin-bottom:0px;">
+									<div id="modalmessagebox_error_mensaje"></div>
+								</div>
+		                    </div>
+		                </div>
+		            </div>
+		            <div class="modal-footer">
+		                <button type="button" class="btn btn-info" data-dismiss="modal" style="width:150px">OK</button>
+		            </div>
+		        </div>
+		    </div>
+		</div>	
+
+		<!-- MODAL CONFIRM -->
+		<div id="modalconfirm" class="modal fade" style="z-index:9999;">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title"><span id ="modalconfirm_title"> </span></h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-xs-2 text-center">
+								<i class="fa fa-exclamation-triangle fa-3x"></i>
+							</div>
+							<div class="col-xs-10">
+								<div id="modalconfirm_mensaje"></div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button id="modalconfirm_btn_cancel" type="button" class="btn btn-danger pull-left"><i class="fa fa-ban"></i> Cancelar</button>
+						<button id="modalconfirm_btn_ok" type="button" class="btn btn-success"><i class="fa fa-check"></i> Aceptar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- FRACCION ORIGINAL :: ELMINAR R8VA PARTIDA PEDIMENTO (FRACCI)-- >
+		<div id="modalfracciori" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="alta" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Fraccion Original</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="form-group">
+									<label>Fracci&oacute;n Original:</label>
+									<input id="itxt_mdl_fraccion_original" class="form-control text-uppercase" type="text" maxlength="255">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button id="modal_btn_eliminar_r8va" type="button" class="btn btn-warning" OnClick="javascript:fnc_ajax_eliminar_regla8va_parped_cierre_noweb(0); return false;"><i class="fa fa-trash"></i> Eliminar Regla</button>
+					</div>
+				</div>
+			</div>
+		</div-->
 		
 		<!--div class="jumbotron"-->
 		<div class="row">	

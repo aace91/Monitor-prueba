@@ -1560,7 +1560,7 @@
 				success:  function (response) {
 					if (response != '500'){
 						var respuesta = JSON.parse(response);
-						show_load_config(false);				
+						setTimeout(function (){show_load_config(false);},300);			
 						if (respuesta.Codigo == '1'){
 							if($('#isel_mdl_fracci_aplir8va_fraccion').val() == null || $('#isel_mdl_fracci_aplir8va_fraccion').val() == undefined){
 								var sHtmlSelRem = ''; var bSelected 
@@ -1569,7 +1569,7 @@
 									sHtmlSelRem += '<option value="'+respuesta.aFracciones[i]+'" '+($('#itxt_mdl_fracci_aplir8va_fraccion').val().trim() == respuesta.aFracciones[i] ? 'selected' : '')+'>'+respuesta.aFracciones[i]+'</option>';
 								}
 								$('#isel_mdl_fracci_aplir8va_fraccion').html(sHtmlSelRem);
-								fnc_ajax_consultar_fracciones_info_parfac_fraccion('fracciones');
+								setTimeout(function (){fnc_ajax_consultar_fracciones_info_parfac_fraccion('fracciones');},1300);
 							}else{
 								var sHtmlSelRem = '';
 								sHtmlSelRem += '<option value="" selected>[SELECCIONAR DESCRIPCIÓN]</option>';
