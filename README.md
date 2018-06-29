@@ -9,8 +9,3 @@
 * Configurar nueva aplicacion en IIS
 * Habilitar extensiones de PHP (odbc, interbase, pdo_firebird, pdo_obdc)
 
-<<<<<<< HEAD
-cambais
-prueba 2
-=======
->>>>>>> origin/master
