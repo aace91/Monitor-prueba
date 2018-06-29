@@ -240,7 +240,7 @@ function fcn_consultar_incrementable(){
 
 			if ($respuesta['Codigo'] == 1) {
 				$consulta = "SELECT cruce.id_cruce, cli.Nom AS nombre_cliente,
-									cruce.trans_tipo AS transtipo, trans.nombre AS trans_tipo
+									cruce.trans_tipo AS transtipo, trans.nombre AS trans_tipo, cruce.hazmat
 							 FROM facturacion.inc_cruces_impo AS cruce INNER JOIN
 								  facturacion.inc_tipo_transporte AS trans ON trans.id_transporte=cruce.trans_tipo INNER JOIN
 								  facturacion.clientes faccli ON faccli.id_inc_cliente=cruce.id_inc_cliente INNER JOIN
@@ -256,7 +256,7 @@ function fcn_consultar_incrementable(){
 				} else {
 					while($row = mysqli_fetch_array($query)){
 						$sClienteNombre = $row["nombre_cliente"];
-						$sTransTipo = $row["trans_tipo"];
+						$sTransTipo = $row["trans_tipo"] . (($row["hazmat"] == 1)? ' - Hazmat' : '');
 						$sTipoSalida = fcn_get_tipo_salida($nIdCruce, $row["transtipo"]);
 					}
 				}
@@ -534,7 +534,7 @@ function fcn_get_tipo_salida($nIdCruce, $sTipoTransporte) {
 		}
 
 		if ($nReferencias > 0) {
-			if ($sTipoTransporte == 'T' || $sTipoTransporte == 'P' || $sTipoTransporte == 'H') {
+			if ($sTipoTransporte == 'T' || $sTipoTransporte == 'P') {
 				if ($nReferencias > 1) {
 					$sTipoSalida = 'CONSOLIDADA';
 				} else {

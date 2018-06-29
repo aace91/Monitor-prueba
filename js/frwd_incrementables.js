@@ -443,11 +443,13 @@ function fcn_show_crear_cruce() {
 		$('#itxt_mdl_nvo_cruce_remision').prop('disabled', true);
 		$('#ibtn_nvo_cruce_add_remision').prop('disabled', true);
 		$('#isel_mdl_nvo_cruce_tipo_transporte').prop('disabled', true);
+		$('#ickb_mdl_nvo_cruce_hazmat').prop('disabled', true);
 		$('#ibtn_mdl_nvo_cruce_crear_cruce').prop('disabled', true);
 
 		$('#isel_nvo_cruce_clientes').val('').trigger('change');
 		$('#itxt_mdl_nvo_cruce_remision').val('');
 		$('#isel_mdl_nvo_cruce_tipo_transporte').val('');
+		$('#ickb_mdl_nvo_cruce_hazmat').prop('checked', false);
 
 		$('#modal_nuevo_cruce').modal({ show: true, backdrop: 'static', keyboard: false });		
     } catch (err) {		
@@ -478,7 +480,7 @@ function fcn_change_tipo_transporte() {
 		if (oRemisionCruceGrid.DataTable().data().count() > 0) {
 			var sSelect = $.trim($('#isel_mdl_nvo_cruce_tipo_transporte').val());
 			if (sSelect != '') {
-				if (sSelect == 'T' || sSelect == 'P' || sSelect == 'H') {
+				if (sSelect == 'T' || sSelect == 'P') {
 					if (__nReferencias > 1) {
 						__sTipoSalida = 'CONSOLIDADA';
 					} else {
@@ -749,6 +751,7 @@ function ajax_get_tarifas_honorarios() {
 						$('#itxt_mdl_nvo_cruce_remision').prop('disabled', false);
 						$('#ibtn_nvo_cruce_add_remision').prop('disabled', false);
 						$('#isel_mdl_nvo_cruce_tipo_transporte').prop('disabled', false);
+						$('#ickb_mdl_nvo_cruce_hazmat').prop('disabled', false);
 						$('#ibtn_mdl_nvo_cruce_crear_cruce').prop('disabled', false);
 
 						fcn_generar_honorarios(respuesta.aHonorarios);
@@ -884,10 +887,12 @@ function ajax_set_crear_cruce() {
 			return false;
 		}
 
+		var bHazmat = (($('#ickb_mdl_nvo_cruce_hazmat').is(':checked'))? 1 : 0);
+
 		/*************************************************************/
 
 		var aHonorarios = new Array();
-		if (__sTipoSalida == 'DIRECTA' && sTipoTrans != 'H') {
+		if (__sTipoSalida == 'DIRECTA') {
 			$.each($('input:radio[name=ophonorarios]:checked'), function (key, val) {
 				aHonorarios.push($(val).data('options'));
 			});
@@ -899,6 +904,7 @@ function ajax_set_crear_cruce() {
 			sIdCliente: __sIdCliente,
 			sTipoSalida: __sTipoSalida,
 			sTipoTrans: sTipoTrans,
+			bHazmat: bHazmat,
 			aRemisiones: JSON.stringify(aRemisionesSel),
 			aHonorarios: JSON.stringify(aHonorarios)
 		};

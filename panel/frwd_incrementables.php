@@ -227,7 +227,7 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 								</div>
 							</div>
 
-							<div class="col-xs-12">
+							<div class="col-xs-12 col-md-9">
 								<div class="form-group">
 									<div class="input-group">
 										<span class="input-group-addon">Tipo de Transporte</span>
@@ -252,6 +252,13 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 												}
 											?>
 										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12 col-md-3">
+								<div class="form-group">
+									<div class="input-group pull-right">
+										<label class="checkbox-inline"><input id="ickb_mdl_nvo_cruce_hazmat" type="checkbox" value="">Hazmat</label>
 									</div>
 								</div>
 							</div>
@@ -431,7 +438,7 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<!--Numeric-->
 	<script  type="text/javascript" language="javascript" src="../plugins/numeric/jquery.numeric.js"></script>
 
-	<script src="../js/frwd_incrementables.js?v=2018.06.22.1213"></script>
+	<script src="../js/frwd_incrementables.js?v=2018.06.29.1340"></script>
 </body>
 
 </html>
