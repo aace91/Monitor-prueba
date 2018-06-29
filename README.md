@@ -8,4 +8,4 @@
 * Descargar repositorio
 * Configurar nueva aplicacion en IIS
 * Habilitar extensiones de PHP (odbc, interbase, pdo_firebird, pdo_obdc)
-
+* Configurar conexion ODBC 32 cnxpedimentos
