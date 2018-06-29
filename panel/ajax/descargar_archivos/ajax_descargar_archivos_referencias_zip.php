@@ -27,6 +27,10 @@ if ($loggedIn == false){
 
 		$query = mysqli_query($cmysqli, $consulta);
 
+		$respuesta['Codigo'] = -1;
+		$respuesta['Mensaje'] = 'Error desconocido.';
+		$respuesta['Error'] = 'Error desconocido';
+
 		if (!$query) {
 			$error=mysqli_error($cmysqli);
 			$respuesta['Codigo'] = -1;
@@ -85,9 +89,11 @@ if ($loggedIn == false){
 							$respuesta['Mensaje'] = "Error al generar el formato de la revision [Ref:$Referencia][Id:$Revision_Id][Fac:$FacturaRev].";
 							$respuesta['Error'] = $e->getMessage();
 							eliminar_documentos_array($aFiles);
+							exit(json_encode($respuesta));
 							break;
 						}
-						$my_report = "C:\\WebSites\\monitor\\panel\\revision.rpt";
+						$my_report = __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "revision.rpt";
+						error_log($my_report);
 						$my_pdf = ''.$Referencia.'_'.str_replace('/','_',$FacturaRev).'_'.date("YmdHis").'.pdf';
 						try
 						{
@@ -111,6 +117,7 @@ if ($loggedIn == false){
 							$respuesta['Error'] = $error->getMessage();
 							eliminar_documentos_array($aFiles);
 							$afiles=array();
+							exit(json_encode($respuesta));
 							break;
 						}
 						$my_pdf_zip = ''.$Referencia.'_'.$FacturaRev.'.pdf';
