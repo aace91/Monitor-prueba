@@ -327,7 +327,6 @@ function fcn_procesar_xls(){
 											 bodbultos=1,
 											 clasebultos='BULTOS',
 											 bodimpfle=0,
-											 fechaVirtual='".$fecha_registro_mysql."',
 											 boddescmer='".$oRow['descripcion']."',
 										     BODFORIGEN='".$oRow['fecha_envio_access']."',
 										     fechapaq='".$oRow['fecha_entrega_access']."'
