@@ -81,7 +81,7 @@ Editor::inst( $db, 'entradas_expo' )
 			$consulta = "SELECT (SELECT COUNT(b.NUM_REFE) + 1 AS RECTIFICACION
 								 FROM SAAIO_PEDIME b
 								 WHERE b.NUM_REFE LIKE '".$ref_rectificacion."-%' AND 
-									   b.TIP_PEDI='R1')
+									   b.TIP_PEDI='R1' AND b.IMP_EXPO = 2)
 						 FROM SAAIO_PEDIME a
 						 WHERE a.NUM_REFE = '".$ref_original."'";
 						 
