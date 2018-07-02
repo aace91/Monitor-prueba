@@ -167,7 +167,9 @@ function eliminar_archivos_viejos(){
 	foreach ($fileSystemIterator as $file) {
 		//3600 segundos que equivale a 1 hora
 		if ($now - $file->getCTime() >= 3600) {
-			unlink($dir_archivos_temp_cruces.$file->getFilename());
+			if(strpos($dir_archivos_temp_cruces.$file->getFilename(),'.pdf')){
+				unlink($dir_archivos_temp_cruces.$file->getFilename());
+			}
 		}
 	}
 }
