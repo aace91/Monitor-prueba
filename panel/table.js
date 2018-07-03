@@ -5,37 +5,6 @@ $(document).ready(function() {
 		"order": [[ 4, 'dsc' ]],
 		"processing": true,
 		"serverSide": true,
-		"aoSearchCols": [
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  { "sSearch": function (){
-				var myselect = document.getElementById("selejecutivo");
-				if (myselect.options[myselect.selectedIndex].value!="")
-				{
-					return myselect.options[myselect.selectedIndex].value;
-				}else{
-					return '';
-				}
-			}
-		  }
-		],
 		"ajax": {
 			"url": "./post.php",
 			"type": "POST",
@@ -43,6 +12,7 @@ $(document).ready(function() {
 				d.fechaini = $('#fechaini1').val();
 				d.fechafin = $('#fechafin1').val();
 				d.cliente = $('#selecliente').val();
+				d.ejecutivo = $('#selejecutivo').val();
 			}
 		},
 		"columns": [
@@ -227,6 +197,9 @@ $(document).ready(function() {
 				"width": "200px" },
 			{
 				"data": "po"
+			},
+			{
+				"data": "subguias"
 			},
 			{ "data": "nom_fac_master" , 
 				"width": "100px",

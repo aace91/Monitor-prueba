@@ -76,19 +76,12 @@
 		<script type="text/javascript" language="javascript" src="../bower_components/bootstrap-fileinput-4.2.3/js/fileinput.js"></script>
 		<script type="text/javascript" language="javascript" src="../bower_components/bootstrap-fileinput-4.2.3/js/locales/es.js"></script>
 		
-		<script type="text/javascript" language="javascript" class="init" src="table.js?2018.06.22.1348"></script>
+		<script type="text/javascript" language="javascript" class="init" src="table.js?2018.07.03.1214"></script>
 		<script type="text/javascript" language="javascript" src="operaciones.js?2018.06.22.1348"></script>
 		<script type="text/javascript" language="javascript" src="moment.js"></script>
 		<script type="text/javascript" language="javascript">
 			function cambiaejecutivo(){
-				var myselect = document.getElementById("selejecutivo");
-				var table = $('#example').DataTable();
-				if (myselect.options[myselect.selectedIndex].value!="")
-				{
-					table.columns( 19 ).search( myselect.options[myselect.selectedIndex].value ).draw();
-				}else{
-					table.search('').columns().search('').draw();
-				}
+				actualiza();
 			}
 
 			function actualiza(){
@@ -434,6 +427,7 @@
 							<th>Guía</th>
 							<th>Linea</th>
 							<th>PO</th>
+							<th>Subguias</th>
 							<th>Fac. Master</th>
 							<th>NOM</th>
 							<th>Cer. Origen</th>

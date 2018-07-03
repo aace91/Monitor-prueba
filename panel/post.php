@@ -178,6 +178,7 @@ $columns = array(
 	array( 'db' => 'bultos',     'dt' => 'bultos' ),
 	array( 'db' => 'po',     'dt' => 'po' ),
 	array( 'db' => 'estatus_doc',     'dt' => 'estatus_doc' ),
+	array( 'db' => 'subguias',     'dt' => 'subguias' ),
 	array( 'db' => 'remision_doc',     'dt' => 'remision_doc', 'formatter' => function( $d, $row ) {
 		return (($d==Null)? '' : $d);
 	} )
@@ -218,6 +219,11 @@ if ($_POST['cliente']!=''){
 }else{
 	$fcliente='';
 }
+if ($_POST['ejecutivo']!=''){
+	$fejecutivo=' AND cli.ejecutivo="'.$_POST['ejecutivo'].'"';
+}else{
+	$fejecutivo='';
+}
 $cinventario='AND IF (bod.bodsalida IS NULL,sald.referencia IS NULL,bod.bodsalida IS NULL)';
 $baseSql = "SELECT
 				bod.bodReferencia AS referencia,
@@ -227,6 +233,14 @@ $baseSql = "SELECT
 				bod.bodbno as bodbno,
 				bod.bodbultos as bultos,
 				bod.bodnopedido as po,
+				(
+					SELECT
+						group_concat( Sub_Guia ) AS subguias 
+					FROM
+						subguias 
+					WHERE
+						referencia = bod.bodreferencia
+				) AS subguias,
 				cli.nom as cliente,
 				bod.BODSHIPPING AS tienefactura,
 				bod.fechafactura AS fechafactura,
@@ -312,7 +326,7 @@ $baseSql = "SELECT
 			LEFT JOIN tblflet AS lineas ON bod.bodfle=lineas.fleclave
 			LEFT JOIN estatus_factura AS efac ON bod.id_estatus_factura=efac.id_estatus_factura
 			WHERE
-			 ".$fechas.$cinventario.$fcliente;
+			 ".$fechas.$cinventario.$fcliente.$fejecutivo;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * If you just want to use the basic configuration for DataTables with PHP
