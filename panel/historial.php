@@ -65,19 +65,12 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<!-- datepicker -->
     <script src="../datepicker/js/bootstrap-datepicker.js"></script>
 	
-	<script type="text/javascript" language="javascript" class="init" src="tablehistorico.js?091120171418"></script>
+	<script type="text/javascript" language="javascript" class="init" src="tablehistorico.js?2018.07.03.1226"></script>
 	<script type="text/javascript" language="javascript" src="operaciones.js?1.0"></script>
 	<script type="text/javascript" language="javascript" src="moment.js"></script>
 	<script type="text/javascript" language="javascript">
 		function cambiaejecutivo(){
-			var myselect = document.getElementById("selejecutivo");
-			var table = $('#example').DataTable();
-			if (myselect.options[myselect.selectedIndex].value!="")
-			{
-				table.columns( 18 ).search( myselect.options[myselect.selectedIndex].value ).draw();
-			}else{
-				table.search('').columns().search('').draw();
-			}
+			actualiza();
 		}
 		function actualiza(){
 			var table = $('#example').DataTable();
@@ -207,6 +200,8 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 					<th>Caja</th>
 					<th>Guía</th>
 					<th>Linea</th>
+					<th>PO</th>
+					<th>Subguias</th>
 				</tr>
 			</thead>
 			<tfoot>
@@ -236,6 +231,8 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 					<th>Caja</th>
 					<th>Guía</th>
 					<th>Linea</th>
+					<th>PO</th>
+					<th>Subguias</th>
 				</tr>
         </tfoot>
 		</table>

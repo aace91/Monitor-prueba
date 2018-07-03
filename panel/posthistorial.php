@@ -150,7 +150,9 @@ $columns = array(
 	} ),
 	array( 'db' => 'caja',  'dt' => 'caja' ),
 	array( 'db' => 'bodbno',     'dt' => 'guia' ),
-	array( 'db' => 'linea',     'dt' => 'linea' )
+	array( 'db' => 'linea',     'dt' => 'linea' ),
+	array( 'db' => 'subguias',     'dt' => 'subguias' ),
+	array( 'db' => 'po',     'dt' => 'po' )
 );
 
 // SQL server connection information
@@ -197,6 +199,11 @@ if ($_POST['cliente']!=''){
 }else{
 	$fcliente='';
 }
+if ($_POST['ejecutivo']!=''){
+	$fejecutivo=' and cli.ejecutivo="'.$_POST['ejecutivo'].'"';
+}else{
+	$fejecutivo='';
+}
 $cinventario='AND IF (
 	sald.referencia IS NULL,
 	bod.bodsalida IS NOT NULL,
@@ -211,6 +218,7 @@ $baseSql = "SELECT
 				cli.nom as cliente,
 				bod.BODSHIPPING AS tienefactura,
 				bod.fechafactura AS fechafactura,
+				bod.bodnopedido as po,
 				rev.id_revision AS revision,
 				rev.fecha AS fecharevision,
 				rev.hora AS horarevision,
@@ -225,6 +233,14 @@ $baseSql = "SELECT
 				salg.relacion AS salida,
 				salg.fecha AS fechasalida,
 				salg.hora AS horasalida,
+				(
+					SELECT
+						group_concat( Sub_Guia ) AS subguias 
+					FROM
+						subguias 
+					WHERE
+						referencia = bod.bodreferencia
+				) AS subguias,
 				bod.bodfoto1 as foto1,
 				bod.bodfoto2 as foto2,
 				bod.bodfoto3 as foto3,
@@ -255,7 +271,7 @@ $baseSql = "SELECT
 			LEFT JOIN tblbodcom as com on bod.bodReferencia=com.referencia
 			LEFT JOIN tblflet AS lineas ON bod.bodfle=lineas.fleclave
 			WHERE
-			 ".$fechas.$fechas2.$cinventario.$fcliente;
+			 ".$fechas.$fechas2.$cinventario.$fcliente.$fejecutivo;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * If you just want to use the basic configuration for DataTables with PHP

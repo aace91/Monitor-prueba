@@ -4,36 +4,6 @@ $(document).ready(function() {
 		"order": [[ 4, 'dsc' ]],
 		"processing": true,
 		"serverSide": true,
-		"aoSearchCols": [
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  {},
-		  { "sSearch": function (){
-				var myselect = document.getElementById("selejecutivo");
-				if (myselect.options[myselect.selectedIndex].value!="")
-				{
-					return myselect.options[myselect.selectedIndex].value;
-				}else{
-					return '';
-				}
-			}
-		  }
-		],
 		"ajax": {
 			"url": "./posthistorial.php",
 			"type": "POST",
@@ -43,6 +13,7 @@ $(document).ready(function() {
 				d.fechasalini = $('#fechasalini1').val();
 				d.fechasalfin = $('#fechasalfin1').val();
 				d.cliente = $('#selecliente').val();
+				d.ejecutivo = $('#selejecutivo').val();
 			}
 		},
 		"columns": [
@@ -194,7 +165,9 @@ $(document).ready(function() {
 					}
 				}
 			},
-			{ "data": "linea" }
+			{ "data": "linea" },
+			{ "data": "po" },
+			{ "data": "subguias" }
 		],
 		"buttons": [
 			{
