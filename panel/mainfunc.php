@@ -86,6 +86,7 @@ function guardar_documento_info($id_doc, $sTask, $referencia, $id_estatus_docume
 			
 			$consulta="UPDATE bodega.docs
 					   SET invalido=NULL,
+					   	   aprovado=NOW(),
 					       id_estatus_documento=".$sIdEstatusDoc."
 					   WHERE id_doc=".$id_doc;
 					   
