@@ -1,6 +1,7 @@
 <?php
 set_time_limit(30);
 include_once('./../checklogin.php');
+include('./../connect_dbsql.php');
 if($loggedIn == false){ header("Location: ./../login.php"); }
 /*
  * DataTables example server-side processing script.
@@ -43,9 +44,17 @@ $columns = array(
     ),
 	array( 'db' => 'referencia',  'dt' => 'referencia' ),
 	array( 'db' => 'fechaentrada',   'dt' => 'fechaentrada', 'formatter' => function( $d, $row ) {
-			return date( 'd/m/Y', strtotime($d));
+			if($d==NULL)
+				return '';
+			else
+				return date( 'd/m/Y', strtotime($d));
 		} ),
-	array( 'db' => 'horaentrada',     'dt' => 'horaentrada' ),
+	array( 'db' => 'fechavirtual',   'dt' => 'fechavirtual', 'formatter' => function( $d, $row ) {
+			if($d==NULL)
+				return '';
+			else
+				return date( 'd/m/Y', strtotime($d));
+		} ),
 	array( 'db' => 'proveedor',     'dt' => 'proveedor' ),
 	array( 'db' => 'descripcion',     'dt' => 'descripcion' ),
 	array( 'db' => 'foto1',     'dt' => 'foto1' ),
@@ -54,7 +63,7 @@ $columns = array(
 	array( 'db' => 'foto4',     'dt' => 'foto4' ),
 	array( 'db' => 'foto5',     'dt' => 'foto5' ),
 	array( 'db' => 'documentacion',     'dt' => 'documentacion' ),
-	array( 'db' => 'cliente',     'dt' => 'cliente' )
+	array( 'db' => 'po',     'dt' => 'po' )
 );
 
 // SQL server connection information
@@ -71,7 +80,65 @@ $sql_details = array(
  * server-side, there is no need to edit below this line.
  */
 
-require( 'ssp.class.inv.php' );
+
+$id_cliente=$_REQUEST['cliente'];
+$cinventario = '
+			AND
+			IF (
+				bod.bodsalida IS NULL,
+				sald.referencia IS NULL,
+				bod.bodsalida IS NULL
+			)
+				';
+$consulta_set_id = 
+	"SELECT
+		id_tpo
+	FROM
+		docs_tipos
+	WHERE
+		`set`=1";
+$query = mysqli_query($cmysqli,$consulta_set_id);
+if(!$query){
+	exit(json_encode(array("error" => "Error al consultar tipo de documetnos")));
+}
+while($row = mysqli_fetch_array($query)){
+	$id_set=$row['id_tpo'];
+}
+// Main query to actually get the data
+$baseSql = "SELECT
+				bod.bodReferencia AS referencia,
+				bodfecha AS fechaentrada,
+				bod.fechavirtual as fechavirtual,
+				bod.bodhora AS horaentrada,
+				bod.boddescmer as descripcion,
+				bod.bodnopedido as po,
+				pro.proNom as proveedor,
+				bod.bodfoto1 as foto1,
+				bod.bodfoto2 as foto2,
+				bod.bodfoto3 as foto3,
+				bod.bodfoto4 as foto4,
+				bod.bodfoto5 as foto5,
+				bod.weblinkp as documentacion
+			FROM
+				tblbod AS bod
+			LEFT JOIN procli AS pro ON bod.bodprocli = pro.proveedor_id
+			LEFT JOIN detalle_salidas AS sald ON bod.bodReferencia = sald.REFERENCIA
+			WHERE
+				bod.bodcli=".$id_cliente.$cinventario."
+			AND NOT EXISTS (
+				SELECT 
+					docs_refe.referencia, 
+					docs.id_tpo 
+				FROM 
+					docs_refe 
+				LEFT JOIN docs ON docs_refe.id_doc = docs.id_doc 
+				WHERE 
+					invalido IS NULL
+				" . ($_POST['tipo_doc'] != $id_set ? "AND (docs.id_tpo = ". $_POST['tipo_doc']." OR docs.id_tpo = $id_set)" : "").
+				"AND referencia=bod.bodreferencia
+			)";
+
+require( 'ssp.class.php' );
 
 echo json_encode(
 	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns )

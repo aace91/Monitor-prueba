@@ -1,40 +1,40 @@
+var table;
 $(document).ready(function() {
-	var table= $('#inventario').dataTable( {
+	table= $('#inventario').DataTable( {
 		"order": [[ 1, 'asc' ]],
 		"processing": true,
-		"serverSide": true,
-		"aoSearchCols": [
-		  null,
-		  null,
-		  null,
-		  null,
-		  null,
-		  null,
-		  null,
-		  { "sSearch": function (){
-				var myselect = document.getElementById("selcliente");
-				if (myselect.options[myselect.selectedIndex].value!="")
-				{
-					return myselect.options[myselect.selectedIndex].value;
-				}else{
-					return '-';
-				}
-			}
-		  },
-		],
+		"serverSide": false,
 		"ajax": {
 			"url": "./postinv.php",
 			"type": "POST",
 			"data": function ( d ) {
 				d.tipo_doc = $('#seltpo').val();
 				d.showconfac=$("#showconfac").is(':checked');
+				d.cliente = $('#selcliente').val();
 			}
 		},
-		"deferLoading": 0,
+		"initComplete": function () {
+			table.buttons().container()
+				.appendTo($('#inventario_wrapper .col-sm-6:eq(0)'));
+		},
 		"columns": [
 			{ "data": "referencia" },
-			{ "data": "fechaentrada" },
-			{ "data": "horaentrada" },
+			{
+				"data": "fechaentrada",
+				"className": "text-center",
+				"mRender": function (data, type, row) {
+					if (type === 'export') {
+						return data;
+					} else {
+						if (data == '' || data == null) {
+							return '<a href="#" data-toggle="tooltip" data-placement="bottom" title="Virtual entry"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:#f0ad4e;"></i></a> ' + row.fechavirtual;
+						} else {
+							return data;
+						}
+					}
+				}
+			},
+			{ "data": "po" },
 			{ "data": "proveedor" },
 			{ "data": "descripcion" },
 			{ "data": "foto1",
@@ -76,16 +76,8 @@ $(document).ready(function() {
 						return '<a href="'+data+'" target="_blank">Ver</a>';
 					}
 				}
-			},
-			{ "data": "cliente" }
+			}
 		],
-		"columnDefs": [
-            {
-				"targets": [ 7 ],
-                "visible": false,
-				className: 'none'
-            }
-        ],
 		responsive: true,
 		"language": {
 			"sProcessing":     '<img src="../images/cargando.gif" height="36" width="36"/>Consultando información...',
@@ -111,23 +103,23 @@ $(document).ready(function() {
 				"sSortDescending": ": Activar para ordenar la columna de manera descendente"
 			}
 		},
-		dom: 'T<"clear">frtlip',
-        tableTools: {
-            "sRowSelect": "multi",
-            "aButtons": [
-				 {
-                    "sExtends": "select_all",
-                    "sButtonText": "seleccionar todo"
-                },
-                {
-                    "sExtends": "select_none",
-                    "sButtonText": "quitar selección"
-                }
-			]
-        }
+		select: {
+			style: 'multi'
+		},
+		lengthChange: false,
+		buttons: [
+			'pageLength',
+			'selectAll',
+			'selectNone',
+			'colvis'
+		]
 	} );
-	$('.dataTable').dataTable().fnFilterOnReturn();
-	$('select').on('change', function (e) {
+
+	table.on('draw', function () {
+		$('[data-toggle="tooltip"]').tooltip();
+	});
+
+	$('#seltpo').on('change', function (e) {
 		compruebacheck();
 		var table = $('#inventario').DataTable();
 		table.ajax.reload();
@@ -139,7 +131,40 @@ $(document).ready(function() {
 		}
 	});
 	compruebacheck();
+	$('.selectpicker').select2();
+
+	$("#documento").fileinput({
+		allowedFileExtensions: ["pdf"],
+		elErrorContainer: "#error",
+		browseLabel: "Browse",
+		removeLabel: "Delete",
+		uploadLabel: "Save",
+		uploadClass: "btn btn-success",
+		msgInvalidFileExtension: "Extension overrides for file {name}. Only {extensions} files are supported.",
+		msgValidationError: "<span class='text-danger'><i class='glyphicon glyphicon-exclamation-sign'></i> Failed to select the file</span>",
+		msgLoading: "Processing &hellip;",
+		uploadUrl: "savedoc.php", // your upload server url
+		uploadExtraData: function () {
+			/*var oTable = $('#inventario').dataTable();
+			var oTT = TableTools.fnGetInstance( 'inventario' );
+			var aData = oTT.fnGetSelectedData();*/
+			//console.log(table.rows( { selected: true } ).data().toArray());
+			return {
+				id_subio: $("#idejecutivo").val(),
+				tipo: $("#seltpo").val(),
+				referencias: JSON.stringify(table.rows({ selected: true }).data().toArray(), null, 2)
+			};
+		}
+	});
+	$('#documento').on('fileuploaded', function (event, data, previewId, index) {
+		var table = $('#inventario').DataTable();
+		table.ajax.reload();
+	});
 } );
+
+function cambiacliente() {
+	table.ajax.reload();
+}
 
 function compruebacheck(){
 	if($('#seltpo').val()==1){
