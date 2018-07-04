@@ -13,7 +13,8 @@ $(document).ready(function() {
 				d.fechafin = $('#fechafin1').val();
 				d.cliente = $('#selecliente').val();
 				d.ejecutivo = $('#selejecutivo').val();
-			}
+			},
+			"complete" : function(){$('#example').DataTable().columns.adjust();}
 		},
 		"columns": [
 			{ "data": "referencia",
@@ -427,6 +428,7 @@ $(document).ready(function() {
 			}
 		}
 	} );
+
 	/*var tt = new $.fn.dataTable.TableTools( table );
     $( tt.fnContainer() ).insertBefore('div.dataTables_wrapper');*/
 	/*$('.dataTable').dataTable().fnFilterOnReturn();*/
