@@ -9,7 +9,6 @@ $(document).ready(function() {
 			"type": "POST",
 			"data": function ( d ) {
 				d.tipo_doc = $('#seltpo').val();
-				d.showconfac=$("#showconfac").is(':checked');
 				d.cliente = $('#selcliente').val();
 			}
 		},
@@ -124,13 +123,6 @@ $(document).ready(function() {
 		var table = $('#inventario').DataTable();
 		table.ajax.reload();
 	});
-	$('#divchkfac').on('change', function (e) {
-		if ($('#seltpo').val()==1){
-			var table = $('#inventario').DataTable();
-			table.ajax.reload();
-		}
-	});
-	compruebacheck();
 	$('.selectpicker').select2();
 
 	$("#documento").fileinput({
@@ -164,12 +156,4 @@ $(document).ready(function() {
 
 function cambiacliente() {
 	table.ajax.reload();
-}
-
-function compruebacheck(){
-	if($('#seltpo').val()==1){
-		$( "#divchkfac" ).removeClass( "hide" );
-	}else{
-		$( "#divchkfac" ).addClass( "hide" );
-	}
 }

@@ -99,13 +99,6 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 						</select>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-md-12">
-						<div class="checkbox pull-right hide" id="divchkfac">
-							<label><input type="checkbox" value="" id="showconfac"><strong>Mostrar referencias que llegaron con factura</strong></label>
-						</div>
-					</div>
-				</div>
 				<br>
 				<div class="row">
 					<div class="col-md-12">
