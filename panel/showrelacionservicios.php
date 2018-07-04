@@ -1,6 +1,7 @@
 <?php
 include_once('./../checklogin.php');
 include('./../url_archivos.php');
+include('./../db.php');
 if($loggedIn == false){
 	header("Location: ./../login.php"); 
 }
