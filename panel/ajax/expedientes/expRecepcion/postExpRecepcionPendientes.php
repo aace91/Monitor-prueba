@@ -9,10 +9,10 @@ if ($loggedIn == false){
 	$baseSql = "SELECT EXTRACT (YEAR FROM a.FEC_ENTR) FECHA, a.NUM_REFE, a.CVE_IMPO, a.IMP_EXPO, a.TIP_PEDI, a.PAT_AGEN,
 			                    a.NUM_PEDI, a.ADU_ENTR, a.FIR_REME, a.FEC_ENTR, a.FIR_PAGO, a.FEC_PAGO
 				FROM SAAIO_PEDIME a
-				WHERE (a.FEC_ENTR >= '01.01.2017'
-				       AND a.FIR_PAGO is not null)
-					  AND a.NUM_REFE NOT IN (SELECT b.NUM_REFE
-					                         FROM GAB_EXPEDIENTES b)
+				WHERE a.FIR_ELEC <> 'DESISTIO' AND
+				     (a.FEC_ENTR >= '01.01.2017' AND a.FIR_PAGO is not null) AND 
+				      a.NUM_REFE NOT IN (SELECT b.NUM_REFE
+					                     FROM GAB_EXPEDIENTES b)
 				ORDER BY a.NUM_REFE asc";
 	$result = odbc_exec ($odbccasa, $baseSql);
 	$datos = array();
