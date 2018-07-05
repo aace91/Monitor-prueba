@@ -125,7 +125,7 @@ function enviar_notificacion_nuevo_cruce_email($idCruce,$action,$seccion){
 								ced.archivo_factura,
 								IFNULL(ced.archivo_cfdi, '') as archivo_cfdi,
 								IFNULL(ced.archivo_anexo_factura, '') as archivo_anexo_factura,
-								IFNULL(ced.archivo_cert_origen, '') as archivo_cert_origen,
+								IF(ced.archivo_cert_origen IS NULL, IF(cer.id_certificado IS NULL, '', CONCAT('".$URL_archivos_certificados_origen."',cer.archivo_certificado)),ced.archivo_cert_origen) as archivo_cert_origen, 
 								IFNULL(ced.archivo_packinglist, '') as archivo_packinglist
 						FROM cruces_expo_detalle ced
 							INNER JOIN aaa ON
@@ -136,6 +136,8 @@ function enviar_notificacion_nuevo_cruce_email($idCruce,$action,$seccion){
 								cep.id_permiso = pp.id_permiso
 							LEFT JOIN permisos_adhesion pad ON
 								cep.id_permiso_adhesion = pad.id_permiso_adhesion
+							LEFT JOIN certificados_origen cer ON
+								ced.id_certificado = cer.id_certificado
 						WHERE ced.id_cruce = ".$id_cruce."
 						GROUP BY ced.id_detalle_cruce";
 						
