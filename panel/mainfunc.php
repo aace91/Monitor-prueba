@@ -102,12 +102,14 @@ function guardar_documento_info($id_doc, $sTask, $referencia, $id_estatus_docume
 			$response = consulta_documentos($referencia);
 			$response['mensaje']="Documento aprobado correctamente!!!";
 			break;
+
 		case "rechazar":
 			$bodnopedido;
+			$referencias;
 			$bcc;
 			$to;
 			
-			$consulta="SELECT tblbod.bodnopedido, 
+			/*$consulta="SELECT tblbod.bodnopedido, 
 							  (SELECT CONCAT(IFNULL(cc1, ''), ',', IFNULL(cc2, ''), ',', IFNULL(cc3, ''), ',', IFNULL(cc4, ''), ',', IFNULL(cc5, ''), ',',
 								  	         IFNULL(cc6, ''), ',', IFNULL(cc7, ''), ',', IFNULL(cc8, ''), ',', IFNULL(cc9, ''), ',', IFNULL(cc10, ''))
 							   FROM geocel_clientes
@@ -117,7 +119,20 @@ function guardar_documento_info($id_doc, $sTask, $referencia, $id_estatus_docume
 							   WHERE id_catalogo=tblbod.bodprocli
 							   GROUP BY id_catalogo) AS prov_email
 					   FROM bodega.tblbod
-					   WHERE tblbod.bodReferencia='".$referencia."'";
+					   WHERE tblbod.bodReferencia='".$referencia."'";*/
+			$consulta = "SELECT GROUP_CONCAT(DISTINCT tblbod.bodnopedido SEPARATOR ', ') AS bodnopedido,
+			                    GROUP_CONCAT(DISTINCT tblbod.bodReferencia SEPARATOR ', ') AS bodReferencia,
+	                            GROUP_CONCAT(DISTINCT (SELECT CONCAT(IFNULL(cc1, ''), ',', IFNULL(cc2, ''), ',', IFNULL(cc3, ''), ',', IFNULL(cc4, ''), ',', IFNULL(cc5, ''), ',',
+													                 IFNULL(cc6, ''), ',', IFNULL(cc7, ''), ',', IFNULL(cc8, ''), ',', IFNULL(cc9, ''), ',', IFNULL(cc10, ''))
+								                       FROM geocel_clientes
+								                       WHERE f_numcli=tblbod.bodcli)) AS ejecutivos_email,
+		                       (SELECT GROUP_CONCAT(email)
+			                    FROM contactos_proveedores
+			                    WHERE id_catalogo=tblbod.bodprocli
+			                    GROUP BY id_catalogo) AS prov_email
+                         FROM bodega.docs_refe AS docsRef INNER JOIN
+	                          bodega.tblbod ON tblbod.bodReferencia=docsRef.referencia
+                         WHERE docsRef.id_doc=".$id_doc;
 					   
 			$query = mysqli_query($cmysqli,$consulta);
 			if (!$query) {
@@ -130,6 +145,7 @@ function guardar_documento_info($id_doc, $sTask, $referencia, $id_estatus_docume
 			
 			while($row = $query->fetch_object()){
 				$bodnopedido = $row->bodnopedido;
+				$referencias = $row->bodReferencia;
 				$to = fcn_emails_array($row->prov_email.','.$row->ejecutivos_email);
 				break;
 			}
@@ -190,8 +206,8 @@ function guardar_documento_info($id_doc, $sTask, $referencia, $id_estatus_docume
 									<tr>
 										<td colspan="3" style="background-color: #f2dede;">
 											<div style="border:1px solid #ebccd1; color: #a94442; background-color: #f2dede; padding-left: 15px; padding-right: 15px;">
-												<p><strong>Referencia:</strong> '.$referencia.'</p>
-												<p><strong>PO:</strong> '.$bodnopedido.'</p>		
+												<p><strong>Referencia(s):</strong> '.$referencias.'</p>
+												<p><strong>PO(s):</strong> '.$bodnopedido.'</p>		
 												<p><strong>Document:</strong> '.$doc_tipo.'</p>
 												<p><strong>Comments:</strong> '.$sEstatusDoc.', '.$obs.'</p>
 											</div>
