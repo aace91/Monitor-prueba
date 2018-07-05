@@ -4,7 +4,7 @@
 						cd.archivo_factura,
 						IFNULL(cd.archivo_cfdi,'') as archivo_cfdi,
 						IFNULL(cd.archivo_anexo_factura,'') as archivo_anexo_factura,
-						IF(cd.archivo_cert_origen IS NULL, IF(cd.id_certificado IS NULL, '', CONCAT('".$URL_archivos_certificados_origen."',cer.archivo_certificado)),'') as archivo_cert_origen,
+						IF(cd.archivo_cert_origen IS NULL, IF(cd.id_certificado IS NULL, '', CONCAT('".$URL_archivos_certificados_origen."',cer.archivo_certificado)),cd.archivo_cert_origen) as archivo_cert_origen,
 						IFNULL(cd.archivo_packinglist,'') AS archivo_packinglist,
 						IFNULL(cd.archivo_ticketbascula,'') AS archivo_ticketbascula,
 						GROUP_CONCAT(DISTINCT con.email SEPARATOR '; ') as contactos_aaa
