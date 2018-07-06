@@ -325,7 +325,7 @@
 						var respuesta = JSON.parse(response);
 						
 						if (respuesta.Codigo == '1'){
-							$('#modal_nvo_permiso').modal('hide');
+							$('#modal_certificado').modal('hide');
 							
 							fcn_cargar_grid_principal_general();
 

@@ -375,7 +375,7 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<!--Numeric-->
 	<script  type="text/javascript" language="javascript" src="../plugins/numeric/jquery.numeric.js"></script>
 
-	<script src="../js/certificados_origen.js?v=2017.12.08.1616"></script>
+	<script src="../js/certificados_origen.js?v=2018.07.06.1817"></script>
 </body>
 
 </html>
