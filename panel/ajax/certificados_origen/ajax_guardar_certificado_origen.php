@@ -27,20 +27,17 @@ if ($loggedIn == false){
 				$respuesta['Codigo'] = -1;
 				$respuesta['Mensaje'] = 'El tamaño del archivo excede del máximo permitido.';
 				$respuesta['Error'] = '';
-				break;
 			}else{
 				if(!move_uploaded_file($pdfFile, $dir_archivos_certificados_origen.$NomPDF)){
 					$respuesta['Codigo'] = -1;
 					$respuesta['Mensaje'] = 'Error al guardar el archivo en el servidor.';
 					$respuesta['Error'] = '';
-					break;
 				}
 			}
 		}else{
 			$respuesta['Codigo'] = -1;
 			$respuesta['Mensaje'] = 'Error en el archivo.';
 			$respuesta['Error'] = '';
-			break;
 		}
 			
 		if($respuesta['Codigo'] == 1){
