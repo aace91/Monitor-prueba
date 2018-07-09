@@ -220,7 +220,7 @@ function notifica_doc($referencias,$id_doc,$idusuario,$docnom,$tipodoc,$aref){
 	$mensaje.='<p>Se le notifica la recepcion de '.$tipodoc.':</p>';
 	$mensaje.='<strong>Referencias: </strong>'.$referencias.'<br>';
 	$mensaje.='<strong>Cliente: </strong>'.$cliente.'<br>';
-	$mensaje.='<strong>'.$tipodoc.': </strong><a href="http://delbravoweb.com/siipruebas/admin/descargadoc.php?iddoc='.$id_doc.'">'.$docnom.'</a><br>';
+	$mensaje.='<strong>'.$tipodoc.': </strong><a href="http://delbravoweb.com/sii/admin/descargadoc.php?iddoc='.$id_doc.'">'.$docnom.'</a><br>';
 
 	$mensaje.='<p>Este correo se ha generado de forma automatica, favor de no responder sobre el.</p>';
 	$correo=enviamail($asunto,$mensaje,$to,$cc,$bcc,'mail.delbravo.com','25','avisosautomaticos@delbravo.com','aviaut01','../images/logo.png');
