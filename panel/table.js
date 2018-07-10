@@ -77,13 +77,24 @@ $(document).ready(function() {
 					}else{
 						link=link+'  <a href="'+row.foto5+'" target="_blank">5</a>';
 					}
-					if (!row.fotosadicionales){
+					/*if (!row.fotosadicionales){
 						link=link+'';
 					}else{
 						link=link+row.fotosadicionales;
-					}
+					}*/
 					return link;
 				}				
+			},
+			{ 	"data": "fotosadicionales",
+				"align": 'Center',
+				"mRender": function (data,type,row) {
+					if (!data){
+						link='';
+					}else{
+						link=data;
+					}
+					return link;
+				}
 			},
 			{ "data": "cliente" ,
 				"width": "300px" 

@@ -118,7 +118,8 @@ $columns = array(
 	array( 'db' => 'foto4',     'dt' => 'foto4' ),
 	array( 'db' => 'foto5',     'dt' => 'foto5' ),
 	array( 'db' => 'fotosadicionales',     'dt' => 'fotosadicionales', 'formatter' => function( $d, $row ) {
-		if($d!=NULL)
+		return (($d != NULL)? '<center><a href="https://www.delbravoweb.com/sii/admin/fotosa.php?ref='.$row['referencia'].'" target="_blank">Ver</a></center>' : '');
+		/*if($d!=NULL)
 			$fotos = explode(",", $d);
 		else
 			$fotos = array();
@@ -127,7 +128,7 @@ $columns = array(
 			//$archivofoto="\\\\192.168.2.33\dbdata\bodega\FotosAdicionalesWeb\\".$row['referencia']."_adicional_".$consecutivo.".jpg";
 			$links.=' <a href="getimageadicional.php?referencia='.$row['referencia'].'&id='.$consecutivo.'" target=_blank>'.$consecutivo.'a</a> ';
 		}
-		return $links;
+		return $links;*/
 	}),
 	array( 'db' => 'documentacion',     'dt' => 'documentacion' ),
 	array( 'db' => 'ejecutivo',     'dt' => 'ejecutivo' ),

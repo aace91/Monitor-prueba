@@ -405,7 +405,8 @@
 							<th>Referencia</th>
 							<th>Documentación</th>
 							<th>Bultos</th>
-							<th>Fotos</th>
+							<th>Fotos Entrada</th>
+							<th>Fotos Adicionales</th>
 							<th>Cliente</th>
 							<th>Fecha Entrada</th>
 							<th>Hora Entrada</th>
@@ -440,7 +441,8 @@
 							<th>Referencia</th>
 							<th>Documentación</th>
 							<th>Bultos</th>
-							<th>Fotos</th>
+							<th>Fotos Entrada</th>
+							<th>Fotos Adicionales</th>
 							<th>Cliente</th>
 							<th>Fecha Entrada</th>
 							<th>Hora Entrada</th>
