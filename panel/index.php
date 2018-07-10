@@ -76,7 +76,7 @@
 		<script type="text/javascript" language="javascript" src="../bower_components/bootstrap-fileinput-4.2.3/js/fileinput.js"></script>
 		<script type="text/javascript" language="javascript" src="../bower_components/bootstrap-fileinput-4.2.3/js/locales/es.js"></script>
 		
-		<script type="text/javascript" language="javascript" class="init" src="table.js?2018.07.04.1326"></script>
+		<script type="text/javascript" language="javascript" class="init" src="table.js?2018.07.10.1700"></script>
 		<script type="text/javascript" language="javascript" src="operaciones.js?2018.06.22.1348"></script>
 		<script type="text/javascript" language="javascript" src="moment.js"></script>
 		<script type="text/javascript" language="javascript">
