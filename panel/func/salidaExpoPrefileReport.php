@@ -19,7 +19,7 @@ $consulta="SELECT a.salidanumero, a.fecha, a.caja,
 				bodega.tblusua AS d ON d.usunombre=a.usuario
 		   WHERE b.NOAAA=58 AND
 			     b.PREFILE_ID IS NULL AND
-				 a.fecha>='2018-06-17' AND 
+				 a.salidanumero>=140771 AND 
 				 a.salidanumero NOT IN ('134627')
 		   GROUP BY a.salidanumero
 		   ORDER BY a.salidanumero DESC";

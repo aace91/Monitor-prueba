@@ -94,7 +94,7 @@ Editor::inst( $db, 'salidas_expo' )
 		$sWhere = "WHERE salidas_expo.reportada IS NULL AND 
 						 facturas_expo.NOAAA = 58 AND
 						 facturas_expo.PREFILE_ID IS NULL AND 
-						 facturas_expo.SALIDA_NUMERO > 134627 /*AND
+						 facturas_expo.SALIDA_NUMERO >= 140771 /*AND
 						 (SELECT COUNT(*)
 						  FROM bodega.facturas_expo AS a INNER JOIN
 						 	   bodega.cruces_expo_detalle AS b ON b.uuid=a.UUID
