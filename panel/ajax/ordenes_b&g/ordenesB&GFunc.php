@@ -116,6 +116,7 @@ function fcn_procesar_xls(){
 					$fecha_envio_access = fcn_get_fecha_access($worksheet->getCellByColumnAndRow(6, $row));
 					$fecha_entrega_access = fcn_get_fecha_access($worksheet->getCellByColumnAndRow(7, $row));
 					$referencia = $worksheet->getCellByColumnAndRow(8, $row)->getValue();
+					$caja = $worksheet->getCellByColumnAndRow(9, $row)->getValue();
 					$flete = $worksheet->getCellByColumnAndRow(10, $row)->getValue();
 					$temperatura = $worksheet->getCellByColumnAndRow(11, $row)->getValue();
 					
@@ -155,6 +156,7 @@ function fcn_procesar_xls(){
 							'fecha_entrega_access' => $fecha_entrega_access,
 							'referencia' => $referencia,
 							'temperatura' => $temperatura,
+							'caja' => ((is_null($caja))? '' : $caja),
 							'flete' => $flete,
 							'boddesccaja' => $boddesccaja,
 							'bodfle' => $bodfle,
@@ -166,8 +168,8 @@ function fcn_procesar_xls(){
 				}
 			}
 			
-			//$respuesta['aData'] = $aData;
-			//exit(json_encode($respuesta));
+			/*$respuesta['aData'] = $aData;
+			exit(json_encode($respuesta));*/
 			
 			/* Insertamos informacion */
 			if ($respuesta['Codigo'] == 1) {
@@ -183,7 +185,7 @@ function fcn_procesar_xls(){
 							$consulta = "INSERT INTO tblbod
 											(bodReferencia, BODEMB, bodprocli, bodcli,
 											 bodtipemb, bodfle, bodtipfle, bodpesolbs,
-											 BodDescCaja, PORLLEGAR, packlist,
+											 bodcaja, BodDescCaja, PORLLEGAR, packlist,
 											 bodbultos, clasebultos, bodusuario, bodimpfle,
 											 boddescmer, bodnopedido, BODFORIGEN, fechaVirtual, fechapaq)
 										  VALUES 
@@ -195,6 +197,7 @@ function fcn_procesar_xls(){
 											,".$oRow['bodfle']."
 											,'PPD'
 											,0
+											,'".$oRow['caja']."'
 											,'".$oRow['boddesccaja']."'
 											,1
 											,'NO'
@@ -219,7 +222,7 @@ function fcn_procesar_xls(){
 								$consulta = "INSERT INTO bodegareplica.tblbod
 												(BOD_ID, bodReferencia, BODEMB, bodprocli, bodcli,
 												 bodtipemb, bodfle, bodtipfle, bodpesolbs,
-												 BodDescCaja, PORLLEGAR, packlist,
+												 bodcaja, BodDescCaja, PORLLEGAR, packlist,
 												 bodbultos, clasebultos, bodusuario, bodimpfle,
 												 boddescmer, bodnopedido, BODFORIGEN, fechaVirtual, fechapaq)
 											  VALUES 
@@ -232,6 +235,7 @@ function fcn_procesar_xls(){
 												,".$oRow['bodfle']."
 												,'PPD'
 												,0
+												,'".$oRow['caja']."'
 												,'".$oRow['boddesccaja']."'
 												,1
 												,'NO'
@@ -271,6 +275,7 @@ function fcn_procesar_xls(){
 														,fecha_envio
 														,fecha_entrega
 														,temperatura
+														,caja
 														,flete
 														,referencia)
 													  VALUES 
@@ -283,6 +288,7 @@ function fcn_procesar_xls(){
 														,'".$oRow['fecha_envio_mysql']."'
 														,'".$oRow['fecha_entrega_mysql']."'
 														,".(($oRow['temperatura'] == '')? 'NULL' : $oRow['temperatura'])."
+														,'".$oRow['caja']."'
 														,'".$oRow['flete']."'
 														,'".$sReferencia."')";
 										
@@ -321,6 +327,7 @@ function fcn_procesar_xls(){
 											 bodfle=".$oRow['bodfle'].",
 											 bodtipfle='PPD',
 											 bodpesolbs=0,
+											 bodcaja='".$oRow['caja']."',
 											 BodDescCaja='".$oRow['boddesccaja']."',
 											 PORLLEGAR=1,
 											 packlist='NO',
@@ -335,25 +342,81 @@ function fcn_procesar_xls(){
 							
 							$bResult = fcn_set_insupd_referencia($consulta, 'UPDATE');				
 							if ($bResult === true) {
-								$consulta = "UPDATE bodega.`ordenes_b&g`
-								             SET po='".$oRow['po']."',
-											     noparte='".$oRow['noparte']."',
-												 descripcion='".$oRow['descripcion']."',
-												 qty=".$oRow['qty'].",
-												 unidad_medida='".$oRow['unidad_medida']."',
-												 proveedor=".explode("|", $oRow['proveedor'])[0].",
-												 fecha_envio='".$oRow['fecha_envio_mysql']."',
-												 fecha_entrega='".$oRow['fecha_entrega_mysql']."',
-												 temperatura=".(($oRow['temperatura'] == '')? 'NULL' : $oRow['temperatura']).",
-												 flete='".$oRow['flete']."'
-											 WHERE referencia='".$oRow['referencia']."'";
-											 
+								mysqli_query($cmysqli, "BEGIN");
+								
+								/********************************************************/
+
+								$consulta = "UPDATE bodegareplica.tblbod
+										     SET BODEMB='".explode("|", $oRow['proveedor'])[1]."',
+										         bodprocli=".explode("|", $oRow['proveedor'])[0].",
+											     bodcli=1359,
+											     bodtipemb='COMPLETO',
+											     bodfle=".$oRow['bodfle'].",
+											     bodtipfle='PPD',
+											     bodpesolbs=0,
+											     bodcaja='".$oRow['caja']."',
+											     BodDescCaja='".$oRow['boddesccaja']."',
+											     PORLLEGAR=1,
+											     packlist='NO',
+											     bodbultos=1,
+											     clasebultos='BULTOS',
+											     bodimpfle=0,
+											     boddescmer='".$oRow['descripcion']."',
+										         BODFORIGEN='".$oRow['fecha_envio_mysql']."',
+										         fechapaq='".$oRow['fecha_entrega_mysql']."'
+										     WHERE bodnopedido='".$oRow['po']."' AND
+												   bodReferencia='".$oRow['referencia']."';";
+												   
 								$query = mysqli_query($cmysqli, $consulta);
 								if (!$query) {
 									$error=mysqli_error($cmysqli);
 									$respuesta['Codigo']=-1;
-									$respuesta['Mensaje']='Error al actualizar registro en entradas_bg. Por favor contacte al administrador del sistema.'.$consulta; 
+									$respuesta['Mensaje']='Error al actualizar registro en bodegareplica.tblbod. Por favor contacte al administrador del sistema.'.$consulta; 
 									$respuesta['Error'] = ' ['.$error.']';
+								}
+
+								if ($respuesta['Codigo'] == 1) {
+									$consulta = str_replace("bodegareplica.tblbod","bodega.tblbod", $consulta);
+
+									$query = mysqli_query($cmysqli, $consulta);
+									if (!$query) {
+										$error=mysqli_error($cmysqli);
+										$respuesta['Codigo']=-1;
+										$respuesta['Mensaje']='Error al actualizar registro en bodega.tblbod. Por favor contacte al administrador del sistema.'.$consulta; 
+										$respuesta['Error'] = ' ['.$error.']';
+									}
+								}
+
+								if ($respuesta['Codigo'] == 1) {
+									$consulta = "UPDATE bodega.`ordenes_b&g`
+												 SET po='".$oRow['po']."',
+													 noparte='".$oRow['noparte']."',
+													 descripcion='".$oRow['descripcion']."',
+													 qty=".$oRow['qty'].",
+													 unidad_medida='".$oRow['unidad_medida']."',
+													 proveedor=".explode("|", $oRow['proveedor'])[0].",
+													 fecha_envio='".$oRow['fecha_envio_mysql']."',
+													 fecha_entrega='".$oRow['fecha_entrega_mysql']."',
+													 temperatura=".(($oRow['temperatura'] == '')? 'NULL' : $oRow['temperatura']).",
+													 caja='".$oRow['caja']."',
+													 flete='".$oRow['flete']."'
+												 WHERE referencia='".$oRow['referencia']."'";
+												
+									$query = mysqli_query($cmysqli, $consulta);
+									if (!$query) {
+										$error=mysqli_error($cmysqli);
+										$respuesta['Codigo']=-1;
+										$respuesta['Mensaje']='Error al actualizar registro en entradas_bg. Por favor contacte al administrador del sistema.'.$consulta; 
+										$respuesta['Error'] = ' ['.$error.']';
+									}
+								}
+
+								/********************************************************/
+								
+								if ($respuesta['Codigo'] == 1) { 
+									mysqli_query($cmysqli, "COMMIT");
+								} else {
+									mysqli_query($cmysqli, "ROLLBACK");
 								}
 							} else {
 								$respuesta['Codigo']=-1;
