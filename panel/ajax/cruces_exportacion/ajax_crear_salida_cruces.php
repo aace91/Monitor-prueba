@@ -286,7 +286,7 @@ if($loggedIn == false){
 								INNER JOIN SAAIO_PEDIME p ON
 									p.NUM_REFE = f.NUM_REFE 
 							WHERE p.NUM_REFE = '".$referencia."' AND UPPER(f.NUM_FACT2) = '".strtoupper($uuid)."'";
-				
+				error_log(json_encode($qCasa));
 				$resped = odbc_exec ($odbccasa, $qCasa);
 				if ($resped == false){
 					$respuesta['Codigo']=-1;
@@ -300,7 +300,8 @@ if($loggedIn == false){
 								"id_cruce" => $row['id_cruce'],
 								"id_detalle_cruce" => $row['id_detalle_cruce'],
 								"referencia" => $referencia,
-								"numero_factura" => $numero_factura
+								"numero_factura" => $numero_factura,
+								"error" => "Esta factura no se localizo en el sistema de pedimentos"
 								);
 					array_push($aFacNoCasa,$Fac);			
 				}else{
@@ -309,7 +310,7 @@ if($loggedIn == false){
 						$cons_fact = odbc_result($resped,"CONS_FACT");
 						$num_fact = odbc_result($resped,"NUM_FACT");
 						
-						$con = "SELECT id_detalle_cruce
+						$con = "SELECT id_detalle_cruce, id_cruce
 								FROM cruces_expo_detalle ced
 								WHERE referencia = '".$referencia."' AND cons_fact = ".$cons_fact;
 								
@@ -338,11 +339,15 @@ if($loggedIn == false){
 							}
 						}else{
 							//Si la factura ya existe, Mostrar opciones para que el ejecutivo ligue
+							while ($row_q = mysqli_fetch_array($q)){
+								$idCruceExistente = $row_q['id_cruce'];
+							}
 							$Fac = array(
 								"id_cruce" => $row['id_cruce'],
 								"id_detalle_cruce" => $row['id_detalle_cruce'],
 								"referencia" => $referencia,
-								"numero_factura" => $numero_factura
+								"numero_factura" => $numero_factura,
+								"error" => "Esta factura de casa ya se encuentra vinculada con el cruce $idCruceExistente"
 								);
 							array_push($aFacNoCasa,$Fac);
 						}
