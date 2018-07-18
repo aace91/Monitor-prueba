@@ -78,6 +78,7 @@ function fcn_envia_notificacion($row) {
 	
 	$sPo = $row->po;
 	$nProveedor = $row->proveedor;
+	$nHoursConfig = 24;
 	
 	/***************************************/
 
@@ -91,22 +92,24 @@ function fcn_envia_notificacion($row) {
 	$asunto = 'Waiting for documents';
 	
 	$sTable = '';
-	$consulta="SELECT bodOrd.po, IF(DATEDIFF(NOW(), bodOrd.fecha_envio) >= 1, '24 hours without attention', '') AS dias,
-					  bodOrd.referencia, bodDocTpo.id_tpo, bodDocTpo.descripcion
+	$consulta="SELECT bodOrd.po, bodOrd.referencia, bodDocTpo.id_tpo, bodDocTpo.descripcion,
+	                  IF(TIMESTAMPDIFF(HOUR, bodOrd.fecha_envio, NOW()) >= IF(prov.tiempo_docs IS NULL, 24, HOUR(prov.tiempo_docs)), CONCAT(IF(prov.tiempo_docs IS NULL, 24, HOUR(prov.tiempo_docs)), ' hours without attention'), '') AS horas,
+					  IF(prov.tiempo_docs IS NULL, 24, HOUR(prov.tiempo_docs)) AS conf_horas
 			   FROM bodega.`ordenes_b&g` AS bodOrd INNER JOIN
 					bodega.tblbod ON tblbod.bodReferencia=bodOrd.referencia LEFT JOIN 
 					bodega.docs_refe AS bodDocsRef ON bodDocsRef.referencia=tblbod.bodReferencia LEFT JOIN
 					bodega.docs AS bodDocs ON bodDocs.id_doc=bodDocsRef.id_doc LEFT JOIN
-					bodega.docs_tipos AS bodDocTpo ON bodDocTpo.id_tpo=bodDocsRef.id_tpo
+					bodega.docs_tipos AS bodDocTpo ON bodDocTpo.id_tpo=bodDocsRef.id_tpo LEFT JOIN
+                    bodega.procli2 AS prov ON prov.proveedor_id=bodOrd.proveedor
 			   WHERE bodOrd.proveedor=".$nProveedor." AND
-					  tblbod.bodsalida IS NULL AND 
-					  tblbod.PORLLEGAR=1 AND
-					  NOW() >= bodOrd.fecha_envio AND
-					  NOT EXISTS (SELECT docs_refe.referencia 
-                                  FROM docs_refe LEFT JOIN 
-                                       docs ON docs_refe.id_doc = docs.id_doc 
-                                  WHERE invalido IS NULL AND 
-                                        referencia = tblbod.bodreferencia)";
+					 tblbod.bodsalida IS NULL AND 
+					 tblbod.PORLLEGAR=1 AND
+					 NOW() >= bodOrd.fecha_envio AND
+					 NOT EXISTS (SELECT docs_refe.referencia 
+                                 FROM docs_refe LEFT JOIN 
+                                      docs ON docs_refe.id_doc = docs.id_doc 
+                                 WHERE invalido IS NULL AND 
+                                       referencia = tblbod.bodreferencia)";
 			
 	$query = mysqli_query($cmysqli, $consulta);
 	if (!$query) {
@@ -123,8 +126,10 @@ function fcn_envia_notificacion($row) {
 				<td align="center" style="border: solid 1px #ddd;">'.$row_query->po.'</td>
 				<td align="center" style="border: solid 1px #ddd;">'.$row_query->referencia.'</td>
 				<td align="center" style="border: solid 1px #ddd;">'.((is_null($row_query->descripcion))? '' : $row_query->descripcion).'</td>
-				<td align="center" style="border: solid 1px #ddd; '.(($row_query->dias != '')? 'color:red;' : '').'" >'.$row_query->dias.'</td>
+				<td align="center" style="border: solid 1px #ddd; '.(($row_query->horas != '')? 'color:red;' : '').'" >'.$row_query->horas.'</td>
 			</tr>';
+
+			$nHoursConfig = $row_query->conf_horas;
 		}
 	}
 
@@ -137,7 +142,7 @@ function fcn_envia_notificacion($row) {
 						<td align="center" style="border: solid 1px #ccc; width:150px;">PO</td>
 						<td align="center" style="border: solid 1px #ccc; width:120px;">Reference</td>
 						<td align="center" style="border: solid 1px #ccc;">Required documents</td>
-						<td align="center" style="border: solid 1px #ccc;">More 24 hours</td>
+						<td align="center" style="border: solid 1px #ccc;">More '.$nHoursConfig.' hours</td>
 					</tr>
 					'.$sTable.'
 				</table>
