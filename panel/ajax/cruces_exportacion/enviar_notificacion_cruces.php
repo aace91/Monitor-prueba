@@ -223,9 +223,6 @@ function enviar_notificacion_nuevo_cruce_email($idCruce,$action,$seccion){
 				}
 			}
 
-			$to = array();
-			$to = array('jcdelacruz@delbravo.com');
-
 			$RespEmail = enviamail($asunto,$mensaje,$to);
 			if($RespEmail['Codigo'] != 1){
 				$respuesta['Codigo'] = -1;
