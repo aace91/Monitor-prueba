@@ -156,14 +156,16 @@ echo json_encode(SSP::simple( $_POST, $sql_details, $table, $primaryKey, $column
 **********************************************************************************************/
 function eliminar_archivos_viejos(){
 	global $dir_archivos_temp_cruces;
-	
-	$fileSystemIterator = new FilesystemIterator($dir_archivos_temp_cruces);
-	$now = time();
-	foreach ($fileSystemIterator as $file) {
-		//3600 segundos que equivale a 1 hora
-		if ($now - $file->getCTime() >= 3600) {
-			if(strpos($dir_archivos_temp_cruces.$file->getFilename(),'.pdf')){
-				unlink($dir_archivos_temp_cruces.$file->getFilename());
+	if (is_dir($dir_archivos_temp_cruces))
+	{
+		$fileSystemIterator = new FilesystemIterator($dir_archivos_temp_cruces);
+		$now = time();
+		foreach ($fileSystemIterator as $file) {
+			//3600 segundos que equivale a 1 hora
+			if ($now - $file->getCTime() >= 3600) {
+				if(strpos($dir_archivos_temp_cruces.$file->getFilename(),'.pdf')){
+					unlink($dir_archivos_temp_cruces.$file->getFilename());
+				}
 			}
 		}
 	}
