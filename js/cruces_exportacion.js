@@ -2226,7 +2226,8 @@ function ajax_consulta_cuce_expo(IdCruce,Action){
 					$("#sel_aduana").val(respuesta.aduana).trigger('change');
 					//$("#sel_tipo_salida").val(respuesta.tiposalida).trigger('change');
 					//$('#txt_numero_caja').val(respuesta.caja);
-					if(respuesta.notransfer){
+
+					if(respuesta.notransfer){ 
 						$('#sel_transfer').select2("trigger", "select", {
 							data: {
 								id: respuesta.notransfer,
@@ -2237,7 +2238,7 @@ function ajax_consulta_cuce_expo(IdCruce,Action){
 					$("#txt_caat_transfer").val(respuesta.caat);
 					$("#txt_scac_transfer").val(respuesta.scac);
 					$("#txt_po_number").val(respuesta.po_number);
-					if(respuesta.notransfer){
+					if(respuesta.noentrega){
 						$('#sel_lugares_entrega').select2("trigger", "select", {
 							data: {
 							   id: respuesta.noentrega,

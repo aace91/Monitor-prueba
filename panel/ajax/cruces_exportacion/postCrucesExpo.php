@@ -37,11 +37,9 @@ $primaryKey = 'id_cruce';
 // parameter represents the DataTables column identifier. In this case object
 // parameter names
 $columns = array(
-	array('db' => 'id_cruce',
-			'dt' => 'DT_RowId',
-			'formatter' => function( $d, $row ) {
-				return $d;
-        } ),
+	array('db' => 'id_cruce', 'dt' => 'DT_RowId', 'formatter' => function( $d, $row ) {
+		return $d;
+    } ),
 	array( 'db' => 'numcliente',     'dt' => 'numcliente' ),
 	array( 'db' => 'fecha_registro',     'dt' => 'fecha_registro'),
 	array( 'db' => 'cliente',     'dt' => 'cliente' ),
@@ -68,14 +66,15 @@ $columns = array(
 	array( 'db' => 'referencias',     'dt' => 'pedimento' , 'formatter' => function( $d, $row ) {
 		$sPed = '';
 		if($d != ''){
+			global $odbccasa;
+
 			$aReferencias = explode(',',$d);
 			for($i = 0; $i<count($aReferencias); $i++){
-				global $odbccasa;
-				
 				$qCasa = "SELECT a.ADU_DESP, a.PAT_AGEN, a.NUM_PEDI
 							FROM SAAIO_PEDIME a
 							WHERE a.NUM_REFE='".$aReferencias[$i]."'
 							GROUP BY a.ADU_DESP, a.PAT_AGEN, a.NUM_PEDI";
+
 				$resped = odbc_exec ($odbccasa, $qCasa);
 				if ($resped == false){
 					$mensaje = "Error al consultar pedimento de las referencias. DataTableCol:Pedimento/BD.CASA.".odbc_error().$qCasa ;
@@ -129,39 +128,35 @@ if($estado != 'todo'){
 
 // Main query to actually get the data
 $baseSql = "SELECT c.id_cruce,DATE_FORMAT(c.fecha_registro, '%d/%m/%Y') as fecha_registro,lt.Nombre as linea_tans,c.aduana,
-				IFNULL(c.tiposalida,GROUP_CONCAT(DISTINCT cd.tiposalida)) as tiposalida,
-				IFNULL(c.caja,GROUP_CONCAT(DISTINCT cd.caja)) as caja,
-				te.nombretransfer as transfer,
-				c.numcliente,ce.cnombre as cliente,
-				CONCAT(c.nombreentrega,'-',c.direntrega) as entrega,
-				c.habilitado_editar,c.po_number,
-				GROUP_CONCAT(DISTINCT cd.numero_factura) as facturas,
-				IF( GROUP_CONCAT(DISTINCT fe.SALIDA_NUMERO) IS NULL, '', GROUP_CONCAT(DISTINCT fe.SALIDA_NUMERO)) as salidas,
-				IF( GROUP_CONCAT(DISTINCT fe.SALIDA_NUMERO) IS NULL, '', GROUP_CONCAT(DISTINCT CONCAT(cd.referencia,'|',cd.cons_fact))) as estado,
-				IFNULL(GROUP_CONCAT(DISTINCT cd.referencia),'') as referencias
-			FROM cruces_expo c
-				INNER JOIN lineast lt ON
-					c.numlinea = lt.numlinea
-				LEFT JOIN transfers_expo te ON
-					c.notransfer = te.notransfer
-				LEFT JOIN cruces_expo_detalle cd ON
-					c.id_cruce = cd.id_cruce
-				INNER JOIN cltes_expo ce ON
-					c.numcliente = ce.gcliente
-				LEFT JOIN facturas_expo fe ON
-					cd.referencia = fe.REFERENCIA AND
-					cd.cons_fact = fe.CONS_FACT_PED
+				   IFNULL(c.tiposalida,GROUP_CONCAT(DISTINCT cd.tiposalida)) as tiposalida,
+				   IFNULL(c.caja,GROUP_CONCAT(DISTINCT cd.caja)) as caja,
+				   te.nombretransfer as transfer,
+				   c.numcliente,ce.cnombre as cliente,
+				   CONCAT(c.nombreentrega,'-',c.direntrega) as entrega,
+				   c.habilitado_editar,c.po_number,
+				   GROUP_CONCAT(DISTINCT cd.numero_factura) as facturas,
+				   IF( GROUP_CONCAT(DISTINCT fe.SALIDA_NUMERO) IS NULL, '', GROUP_CONCAT(DISTINCT fe.SALIDA_NUMERO)) as salidas,
+				   IF( GROUP_CONCAT(DISTINCT fe.SALIDA_NUMERO) IS NULL, '', GROUP_CONCAT(DISTINCT CONCAT(cd.referencia,'|',cd.cons_fact))) as estado,
+				   IFNULL(GROUP_CONCAT(DISTINCT cd.referencia),'') as referencias
+			FROM cruces_expo c INNER JOIN
+			     lineast lt ON c.numlinea = lt.numlinea LEFT JOIN
+				 transfers_expo te ON c.notransfer = te.notransfer LEFT JOIN 
+				 cruces_expo_detalle cd ON c.id_cruce = cd.id_cruce INNER JOIN
+				 cltes_expo ce ON c.numcliente = ce.gcliente LEFT JOIN
+				 facturas_expo fe ON cd.referencia = fe.REFERENCIA AND 
+				                     cd.cons_fact = fe.CONS_FACT_PED
 			".$sSql."
 			GROUP BY c.id_cruce ".$sSqlHav;
 //error_log($baseSql);
 require( '../../ssp.class.cruces.php' );
 echo json_encode(SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns ));
 
-/* ********************************************************************************************
+/*********************************************************************************************
 	FUNCION QUE LIMPIA DIRECTORIO DE ARCHIVOS TEMPORALES
-******************************************************************************************** */
+**********************************************************************************************/
 function eliminar_archivos_viejos(){
 	global $dir_archivos_temp_cruces;
+	
 	$fileSystemIterator = new FilesystemIterator($dir_archivos_temp_cruces);
 	$now = time();
 	foreach ($fileSystemIterator as $file) {

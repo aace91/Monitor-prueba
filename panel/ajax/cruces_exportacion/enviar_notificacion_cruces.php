@@ -4,21 +4,19 @@ include('./../../../bower_components/PHPMailer/PHPMailerAutoload.php');
 
 function enviar_notificacion_nuevo_cruce_email($idCruce,$action,$seccion){
 	global $cmysqli;global $URL_archivos_permisos;
-	$consulta = " SELECT ce.id_cruce,cli.cnombre as cliente,l.Nombre as linea_t,ce.aduana,tr.nombretransfer,
+	$consulta = "SELECT ce.id_cruce,cli.cnombre as cliente,l.Nombre as linea_t,ce.aduana,tr.nombretransfer,
 						ce.caat,ce.scac,ent.nombreentrega,ce.direntrega,ce.indicaciones,ce.numcliente,ce.po_number,
-						IF(ce.numcliente IS NULL, '', clc.cnombre) as cliente_consolidar,ce.observaciones
-				FROM cruces_expo	ce
-					INNER JOIN cltes_expo cli ON
-						ce.numcliente = cli.gcliente
-					LEFT JOIN lineast l ON
-						ce.numlinea = l.numlinea
-					LEFT JOIN transfers_expo tr ON
-						ce.notransfer = tr.notransfer
-					LEFT JOIN entregas_expo ent ON
-						ce.noentrega = ent.numeroentrega
-					LEFT JOIN cltes_expo clc ON
-						ce.numcliente_consolidar = clc.gcliente
-				WHERE ce.id_cruce = ".$idCruce;
+						IFNULL(GROUP_CONCAT(clice.cnombre SEPARATOR ' <br> '),'') as clientes_consolidar,
+					    ce.observaciones
+				 FROM cruces_expo	ce INNER JOIN
+					  cltes_expo cli ON ce.numcliente = cli.gcliente LEFT JOIN 
+					  lineast l ON ce.numlinea = l.numlinea LEFT JOIN
+					  transfers_expo tr ON ce.notransfer = tr.notransfer LEFT JOIN
+					  entregas_expo ent ON ce.noentrega = ent.numeroentrega LEFT JOIN
+					  cruces_expo_clientes_consolidar cc ON ce.id_cruce = cc.id_cruce LEFT JOIN
+					  cltes_expo clice ON cc.numcliente = clice.gcliente
+				 WHERE ce.id_cruce = ".$idCruce;
+
 	$query = mysqli_query($cmysqli,$consulta);
 	if (!$query) {
 		$error=mysqli_error($cmysqli);
@@ -41,7 +39,7 @@ function enviar_notificacion_nuevo_cruce_email($idCruce,$action,$seccion){
 			$indicaciones = $row['indicaciones'];
 			$observaciones = $row['observaciones'];
 			$numcliente = $row['numcliente'];
-			$cliente_consolidar = $row['cliente_consolidar'];
+			$clientes_consolidar = $row['clientes_consolidar'];
 		}
 		$sHTML = '<table style="border: solid 1px #bbbccc; width: 1100px;" cellspacing="0" cellpadding="0">
 					<tbody>
@@ -87,9 +85,9 @@ function enviar_notificacion_nuevo_cruce_email($idCruce,$action,$seccion){
 								<tr><td style="background-color: #bbbccc; border: 1px solid #bbbccc;" colspan="3" align="center"><big><strong>Observaciones</strong></big></td></tr>
 								<tr><td style="border:1px solid #bbbccc;" colspan="3" align="left">'.($observaciones == '' ? '' : $observaciones).'</td></tr>
 								<tr><td colspan="3">&nbsp;</td></tr>';
-		if($cliente_consolidar != ''){
+		if($clientes_consolidar != ''){
 			$sHTML .= '			<tr><td style="background-color: #E4FFF3; border: 1px solid #bbbccc;" colspan="3" align="center"><big><strong>CRUCE CONSOLIDADO CON</strong></big></td></tr>
-								<tr><td style="border: 1px solid #bbbccc;" colspan="3" align="center"><big><strong>'.$cliente_consolidar.'</strong></big></td></tr>
+								<tr><td style="border: 1px solid #bbbccc;" colspan="3" align="center"><big><strong>'.$clientes_consolidar.'</strong></big></td></tr>
 								<tr><td colspan="3">&nbsp;</td></tr>';
 		}
 		$sHTML .= '				<tr><td style="background-color: #0073b7; border: 1px solid #bbbccc; color: #fff;" colspan="3" align="center"><strong>FACTURAS</strong></td></tr>
@@ -186,20 +184,17 @@ function enviar_notificacion_nuevo_cruce_email($idCruce,$action,$seccion){
 		$mensaje = $sHTML;
 		
 		$consulta = "SELECT GROUP_CONCAT(DISTINCT ctcli.email) as contactos_cliente,
-						GROUP_CONCAT(DISTINCT ctaaa.email) as contactos_aaa,
-						'' as contactos_lineat,
-						'' as contactos_transfer
-				FROM cruces_expo c
-					LEFT JOIN contactos_expo ctcli ON
-						c.numcliente = ctcli.id_catalogo AND
-						ctcli.tipo_catalogo = 'CLI'
-					INNER JOIN cruces_expo_detalle cd ON
-						c.id_cruce = cd.id_cruce
-					LEFT JOIN contactos_expo ctaaa ON
-						cd.noaaa = ctaaa.id_catalogo AND
-						ctaaa.tipo_catalogo = 'AAA'
-				WHERE c.id_cruce = $id_cruce 
-				GROUP BY c.id_cruce";
+						    GROUP_CONCAT(DISTINCT ctaaa.email) as contactos_aaa,
+						    '' as contactos_lineat,
+						    '' as contactos_transfer
+				     FROM cruces_expo c LEFT JOIN
+					      contactos_expo ctcli ON c.numcliente = ctcli.id_catalogo AND
+						                          ctcli.tipo_catalogo = 'CLI' INNER JOIN
+                          cruces_expo_detalle cd ON c.id_cruce = cd.id_cruce LEFT JOIN
+						  contactos_expo ctaaa ON cd.noaaa = ctaaa.id_catalogo AND
+						                          ctaaa.tipo_catalogo = 'AAA'
+				     WHERE c.id_cruce = $id_cruce 
+				     GROUP BY c.id_cruce";
 					
 		$query = mysqli_query($cmysqli,$consulta);
 		if (!$query) {
@@ -227,6 +222,10 @@ function enviar_notificacion_nuevo_cruce_email($idCruce,$action,$seccion){
 					$to = array_merge($to,$aCont);
 				}
 			}
+
+			$to = array();
+			$to = array('jcdelacruz@delbravo.com');
+
 			$RespEmail = enviamail($asunto,$mensaje,$to);
 			if($RespEmail['Codigo'] != 1){
 				$respuesta['Codigo'] = -1;

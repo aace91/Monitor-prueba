@@ -74,7 +74,7 @@ if($loggedIn == false){
 		}
 		for($i=0; $i < count($aCliConsolidar); $i++ ){
 			$consulta = "INSERT INTO cruces_expo_clientes_consolidar (id_cruce,numcliente)
-							VALUES (".$id_cruce.",'".$aCliConsolidar[$i]->id_cliente."')";
+					     VALUES (".$id_cruce.",'".$aCliConsolidar[$i]->id_cliente."')";
 			
 			$query = mysqli_query($cmysqli,$consulta); 
 			if (!$query) {

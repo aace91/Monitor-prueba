@@ -19,4 +19,4 @@
 	$dir_archivos_anexos_gab = "\\\\192.168.1.126\\cfd\\anexos\\";	
 	$URL_bodega = "http://delbravoapps.tk/";/*"https://192.168.2.51/";*/
 	$URL_ws_webtools = "http://delbravoapps.tk/";
-	$dir_archivos_temp_cruces = "C:\\WebSites\\monitor\\panel\\ajax\\cruces_exportacion\\Archivos_Temporales\\";
+	$dir_archivos_temp_cruces = __DIR__ ."\\panel\\ajax\\cruces_exportacion\\Archivos_Temporales\\";

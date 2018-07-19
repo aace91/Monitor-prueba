@@ -78,7 +78,7 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 <body id="body">
 	<div class="container">
 		<!-- MODAL AGREGAR CRUCE DE EXPORTACION -->
-		<div id="modal_estado" class="modal fade">
+		<div id="modal_estado" class="modal">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header bg-cruce">
@@ -1775,7 +1775,7 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<!--Numeric-->
 	<script  type="text/javascript" language="javascript" src="../plugins/numeric/jquery.numeric.js"></script>
 	<!--JS principal-->
-	<script src="../js/cruces_exportacion.js?v=2018.06.19.1653"></script>
+	<script src="../js/cruces_exportacion.js?v=2018.07.19.1000"></script>
 </body>
 
 </html>
