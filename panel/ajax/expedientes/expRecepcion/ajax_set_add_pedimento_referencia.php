@@ -71,44 +71,46 @@ if ($loggedIn == false){
 
 		//Si es un pedimento de exportación se debe verificar si todas las facturas del pedimento estan en una salida
 		if ($respuesta['Codigo']== 1 && $strImpoExpo == 2 && $strTipPedi != 'R1') {
-			$consulta = "SELECT a.NUM_REFE, a.CONS_FACT, a.NUM_FACT, a.NUM_FACT2
-						 FROM SAAIO_FACTUR a
-						 WHERE a.NUM_REFE='".$sReferencia."'
-						 ORDER BY a.CONS_FACT";
-			
-			$query = odbc_exec ($odbccasa, $consulta);
-			if ($query==false){ 
-				$respuesta['Codigo'] = -1;
-				$respuesta['Mensaje'] = "Error al consultar facturas del [".$sPedimento."] en el sistema CASA.";
-				$respuesta['Error'] = ' ['.$query.']';
-			} else {
-				if(odbc_num_rows($query)<=0){ 
+			if ($strClavePedimento == 'BO' || $strClavePedimento == 'RT' || $strClavePedimento == 'A1') {
+				$consulta = "SELECT a.NUM_REFE, a.CONS_FACT, a.NUM_FACT, a.NUM_FACT2
+							 FROM SAAIO_FACTUR a
+							 WHERE a.NUM_REFE='".$sReferencia."'
+							 ORDER BY a.CONS_FACT";
+				
+				$query = odbc_exec ($odbccasa, $consulta);
+				if ($query==false){ 
 					$respuesta['Codigo'] = -1;
-					$respuesta['Mensaje'] = "El pedimento [".$sPedimento."] no tiene facturas en el sistema CASA.";
-					$respuesta['Error'] = '';
+					$respuesta['Mensaje'] = "Error al consultar facturas del [".$sPedimento."] en el sistema CASA.";
+					$respuesta['Error'] = ' ['.$query.']';
 				} else {
-					while(odbc_fetch_row($query)){ 
-						$strCONS_FACT = odbc_result($query,"CONS_FACT");
-						$strNUM_FACT = odbc_result($query,"NUM_FACT");
+					if(odbc_num_rows($query)<=0){ 
+						$respuesta['Codigo'] = -1;
+						$respuesta['Mensaje'] = "El pedimento [".$sPedimento."] no tiene facturas en el sistema CASA.";
+						$respuesta['Error'] = '';
+					} else {
+						while(odbc_fetch_row($query)){ 
+							$strCONS_FACT = odbc_result($query,"CONS_FACT");
+							$strNUM_FACT = odbc_result($query,"NUM_FACT");
 
-						$consulta="SELECT REFERENCIA, PEDIMENTO
-								FROM bodega.facturas_expo
-								WHERE FACTURA_NUMERO='".$strNUM_FACT."' AND
-										CONS_FACT_PED=".$strCONS_FACT." AND
-										REFERENCIA='".$sReferencia."'";
-						
-						$query = mysqli_query($cmysqli, $consulta);			
-						if (!$query) {
-							$error=mysqli_error($cmysqli);
-							$respuesta['Codigo']=-1;
-							$respuesta['Mensaje']='Error al consultar la factura ['.$strNUM_FACT.'] en salidas de exportación.'; 
-							$respuesta['Error'] = ' ['.$error.']';	
-						} else {
-							if (mysqli_num_rows($query) == 0) {
-								$respuesta['Codigo'] = -1;
-								$respuesta['Mensaje'] = "La factura [".$strNUM_FACT."] no existe en una salida de exportación, favor de notificar al ejecutivo.";
-								$respuesta['Error'] = '';
-								break;
+							$consulta="SELECT REFERENCIA, PEDIMENTO
+									FROM bodega.facturas_expo
+									WHERE FACTURA_NUMERO='".$strNUM_FACT."' AND
+											CONS_FACT_PED=".$strCONS_FACT." AND
+											REFERENCIA='".$sReferencia."'";
+							
+							$query = mysqli_query($cmysqli, $consulta);			
+							if (!$query) {
+								$error=mysqli_error($cmysqli);
+								$respuesta['Codigo']=-1;
+								$respuesta['Mensaje']='Error al consultar la factura ['.$strNUM_FACT.'] en salidas de exportación.'; 
+								$respuesta['Error'] = ' ['.$error.']';	
+							} else {
+								if (mysqli_num_rows($query) == 0) {
+									$respuesta['Codigo'] = -1;
+									$respuesta['Mensaje'] = "La factura [".$strNUM_FACT."] no existe en una salida de exportación, favor de notificar al ejecutivo.";
+									$respuesta['Error'] = '';
+									break;
+								}
 							}
 						}
 					}
