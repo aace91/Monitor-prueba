@@ -48,7 +48,7 @@ $consulta="SELECT a.salidanumero, a.fecha, b.caja,
 				bodega.facturas_expo AS b ON b.SALIDA_NUMERO=a.salidanumero
 		   WHERE b.NOAAA=58 AND
 				 b.PREFILE_ID IS NULL AND
-				 a.fecha >= '2018-06-17' AND
+				 a.fecha >= '2018-07-19' AND
 				 a.salidanumero NOT IN ('134627')
 		   ORDER BY a.salidanumero DESC";
 		   
