@@ -16,11 +16,41 @@ var strSessionMessage = 'La sesión del usuario ha caducado, por favor acceda de
 var sGifLoader = '<img src="../images/cargando.gif" height="16" width="16"/>';
 
 var oCircularesGrid = null;
+var oListasCGrid = null;
+var oListasCorreosGrid = null;
+var oCirculareListasGrid = null;
 
 var __nIdCircular;
 var __sTask;
 
+var __nIdListaCorreos;
+var __sTaskListaCorreos;
+
 var __nTotalPages = 0;
+var __oTrDtDelete;
+
+var oLanguage = {
+	sProcessing: '<img src="../images/cargando.gif" height="18" width="18"> Cargando, espera un momento por favor...',
+	lengthMenu: "Mostrar _MENU_ registros por p&aacute;gina",
+	search:         "Buscar:",
+	info: "Mostrando p&aacute;gina _PAGE_ de _PAGES_ p&aacute;ginas de _TOTAL_ registros",
+	zeroRecords:    "No se encontraron registros",
+	infoEmpty:      "Mostrando 0 a 0 de 0 registros",
+	infoFiltered:   "(filtrado de un total de _MAX_ registros)",
+	paginate: {
+		first:      "Primero",
+		last:       "&Uacute;ltimo",
+		next:       "Siguiente",
+		previous:   "Anterior"
+	},
+	select: {
+		rows: {
+			_: "",
+			0: "",                    
+			1: "1 fila seleccionada"
+		}
+	}
+}
 
 /*********************************************************************************************************************************
 ** BEGIN APPLICATION                                                                                                            **
@@ -128,6 +158,12 @@ function application_run() {
 			placeholder: 'Escriba su mensaje...',
 		});
 		$('#idiv_mensaje_html').summernote('fontSize', 14);
+
+		$("#isel_lista_correos").select2({
+			theme: "bootstrap",
+			width: "off",
+			placeholder: "Seleccione una Opción"
+		});
 		
 		/* ..:: Configuramos el FileInput ::.. */
 		$("#ifile_documentos").fileinput({
@@ -185,9 +221,12 @@ function fcn_cargar_grid_circulares(bReloadPaging) {
 					{ targets: 3, orderable: false }
 				],
 				ajax: {
-					"url": "ajax/circulares/postCirculares.php",
+					"url": "ajax/circulares/circularesFunc.php",
 					"type": "POST",
 					"timeout": 20000,
+					"data": function ( d ) {
+						d.action = 'table_circulares';
+					},
 					"error": handleAjaxError
 				},
 				columns: [ 
@@ -198,9 +237,9 @@ function fcn_cargar_grid_circulares(bReloadPaging) {
 						"className": "text-center",
 						"mRender": function (data, type, row) {
 								var sHtml = '';
-								sHtml += '<a class="btn btn-primary btn-xs editor_' + div_table_name + '_editar"><i class="fa fa-pencil" aria-hidden="true"></i></a>';
-								sHtml += '<a class="btn btn-primary btn-xs editor_' + div_table_name + '_copy" style="margin-left: 10px;"><i class="fa fa-copy" aria-hidden="true"></i></a>';
-								sHtml += '<a class="btn btn-danger btn-xs editor_' + div_table_name + '_eliminar" style="margin-left: 10px;"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+								sHtml += '<a class="btn btn-primary btn-xs editor_' + div_table_name + '_editar def_app_btn_tbl_margin"><i class="fa fa-pencil" aria-hidden="true"></i></a>';
+								sHtml += '<a class="btn btn-primary btn-xs editor_' + div_table_name + '_copy def_app_btn_tbl_margin"><i class="fa fa-copy" aria-hidden="true"></i></a>';
+								sHtml += '<a class="btn btn-danger btn-xs editor_' + div_table_name + '_eliminar def_app_btn_tbl_margin"><i class="fa fa-trash" aria-hidden="true"></i></a>';
 								return sHtml;
 							} 
 					}
@@ -211,35 +250,15 @@ function fcn_cargar_grid_circulares(bReloadPaging) {
 					[10, 25, 50, 100, 200, "All"]
 				],
 				iDisplayLength: 10,
-				language: {
-					sProcessing: '<img src="../images/cargando.gif" height="18" width="18"> Cargando, espera un momento por favor...',
-					lengthMenu: "Mostrar _MENU_ registros por p&aacute;gina",
-					search:         "Buscar:",
-					info: "Mostrando p&aacute;gina _PAGE_ de _PAGES_ p&aacute;ginas de _TOTAL_ registros",
-					zeroRecords:    "No se encontraron registros",
-					infoEmpty:      "Mostrando 0 a 0 de 0 registros",
-					infoFiltered:   "(filtrado de un total de _MAX_ registros)",
-					paginate: {
-						first:      "Primero",
-						last:       "&Uacute;ltimo",
-						next:       "Siguiente",
-						previous:   "Anterior"
-					},
-					select: {
-						rows: {
-							_: "",
-							0: "",                    
-							1: "1 fila seleccionada"
-						}
-					}
-				},
+				language: oLanguage,
 				dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
 					 "<'row'<'col-xs-8'B><'col-xs-4'<'" + div_refresh_name + "'>>>" +
 					 "<'row'<'col-sm-12'tr>>" +
 					 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
 				buttons: [
 					{
-		                text: '<i class="fa fa-plus" aria-hidden="true"></i> Nuevo Circular',
+						text: '<i class="fa fa-plus" aria-hidden="true"></i> Nuevo Circular',
+						className: 'btn btn-success',
 		                action: function ( e, dt, node, config ) {
 							__sTask = 'nuevo';
 							__nIdCircular = '';
@@ -248,6 +267,13 @@ function fcn_cargar_grid_circulares(bReloadPaging) {
 							$('#itxt_mdl_circular_asunto').val('');
 							
 							$('#modal_circular').modal({ show: true, backdrop: 'static', keyboard: false });
+		            	}
+					},
+					{
+						text: '<i class="fa fa-list-ul" aria-hidden="true"></i> Listas de Correos',
+						className: 'btn btn-primary',
+		                action: function ( e, dt, node, config ) {
+							fcn_listas_correos_ops('show');
 		            	}
 		            }
 				]
@@ -318,6 +344,284 @@ function fcn_cargar_grid_circulares(bReloadPaging) {
 		}
 	} catch (err) {		
 		var strMensaje = 'fcn_cargar_grid_circulares() :: ' + err.message;
+		show_modal_error(strMensaje);
+	}
+}
+
+function fcn_cargar_grid_listas(bReloadPaging) {
+	try {
+		if (oListasCGrid == null) {
+			var oDivDisplayErrors = 'idiv_listasc_mensaje';
+			var div_table_name = 'dt_listas';
+			var div_refresh_name = div_table_name + '_refresh';		
+			
+			oListasCGrid = $('#' + div_table_name);
+			
+			oListasCGrid.DataTable({
+				order: [[0, 'desc']],
+				processing: true,
+				serverSide: true,
+				columnDefs: [
+					{ targets: 3, orderable: false }
+				],
+				ajax: {
+					"url": "ajax/circulares/circularesFunc.php",
+					"type": "POST",
+					"timeout": 20000,
+					"data": function ( d ) {
+						d.action = 'table_listas_correos';
+					},
+					"error": handleAjaxError
+				},
+				columns: [ 
+					{ "data": "fecha", "className": "text-center" },
+					{ "data": "nombre" },
+					{ "data": "descripcion" },
+					{   "data": null,
+						"className": "text-center",
+						"mRender": function (data, type, row) {
+								var sHtml = '';
+								sHtml += '<a class="btn btn-primary btn-xs editor_' + div_table_name + '_editar def_app_btn_tbl_margin"><i class="fa fa-pencil" aria-hidden="true"></i></a>';
+								sHtml += '<a class="btn btn-danger btn-xs editor_' + div_table_name + '_eliminar def_app_btn_tbl_margin"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+								return sHtml;
+							} 
+					}
+				],
+				responsive: true,
+				aLengthMenu: [
+					[10, 25, 50, 100, 200, -1],
+					[10, 25, 50, 100, 200, "All"]
+				],
+				iDisplayLength: 10,
+				language: oLanguage,
+				dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+					 "<'row'<'col-xs-8'B><'col-xs-4'<'" + div_refresh_name + "'>>>" +
+					 "<'row'<'col-sm-12'tr>>" +
+					 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+				buttons: [
+					{
+						text: '<i class="fa fa-plus" aria-hidden="true"></i> Nueva Lista Correos',
+						className: 'btn btn-success',
+		                action: function ( e, dt, node, config ) {
+							__nIdListaCorreos = '';
+							fcn_listas_correos_ops('show_lista_correos');
+		            	}
+					}
+				]
+			});
+			
+			var sButton = fcn_create_button_datatable(div_table_name, '<i class="fa fa-refresh" aria-hidden="true"></i> Recargar', 'onClick="javascript:fcn_cargar_grid_listas(true);"');
+			$("div." + div_refresh_name).html(sButton);
+			
+			oListasCGrid.on('click', 'a.editor_' + div_table_name + '_editar', function (e) {
+				try {		
+					var oData = fcn_get_row_data($(this), oListasCGrid);
+					
+					__nIdListaCorreos = oData.id_lista;
+					fcn_listas_correos_ops('show_lista_correos');
+				} catch (err) {		
+					var strMensaje = 'a.editor_' + div_table_name + '_editar() :: ' + err.message;
+					show_modal_error(strMensaje);
+				}  
+			} );
+
+			oListasCGrid.on('click', 'a.editor_' + div_table_name + '_eliminar', function (e) {
+				try {		
+					var oData = fcn_get_row_data($(this), oListasCGrid);
+					__nIdListaCorreos = oData.id_lista;
+					
+					var strTitle = 'Eliminar Lista de Correos';
+					var strQuestion = 'Desea eliminar la lista de correos: ' + oData.nombre;
+					var oFunctionOk = function () { 
+						ajax_del_lista_correos();
+					};
+					var oFunctionCancel = null;
+					show_confirm(strTitle, strQuestion, oFunctionOk, oFunctionCancel);
+				} catch (err) {		
+					var strMensaje = 'a.editor_' + div_table_name + '_editar() :: ' + err.message;
+					show_modal_error(strMensaje);
+				}  
+			} );
+			
+			oListasCGrid.on( 'error.dt', function ( e, settings, techNote, message ) {
+				on_grid_error(e, settings, techNote, message, oDivDisplayErrors);
+			} );
+		} else {
+			bReloadPaging = ((bReloadPaging == null || bReloadPaging == undefined)? false: true);
+
+			var table = oListasCGrid.DataTable();
+			table.search('').ajax.reload(null, bReloadPaging);
+			setTimeout(function(){ oListasCGrid.DataTable().columns.adjust().responsive.recalc(); }, 500);
+		}
+	} catch (err) {		
+		var strMensaje = 'fcn_cargar_grid_listas() :: ' + err.message;
+		show_modal_error(strMensaje);
+	}
+}
+
+function fcn_cargar_grid_lista_correos(aData) {
+	try {
+		if (oListasCorreosGrid == null) {
+			var oDivDisplayErrors = 'idiv_lista_correo_mensaje';
+			var div_table_name = 'dt_lista_correos';
+			var div_refresh_name = div_table_name + '_refresh';		
+			
+			oListasCorreosGrid = $('#' + div_table_name);
+			
+			oListasCorreosGrid.DataTable({
+				order: [[0, 'desc']],
+				processing: false,
+				serverSide: false,
+				columnDefs: [
+					{ targets: 2, orderable: false }
+				],
+				data: aData,
+				columns: [ 
+					{ "data": "correo" },
+					{ "data": "nombre" },
+					{   "data": null,
+						"className": "text-center",
+						"mRender": function (data, type, row) {
+								var sHtml = '';
+								sHtml += '<a class="btn btn-danger btn-xs editor_' + div_table_name + '_eliminar def_app_btn_tbl_margin"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+								return sHtml;
+							} 
+					}
+				],
+				responsive: true,
+				aLengthMenu: [
+					[10, 25, 50, 100, 200, -1],
+					[10, 25, 50, 100, 200, "All"]
+				],
+				iDisplayLength: 10,
+				language: oLanguage,
+				dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+					 "<'row'<'col-sm-12'tr>>" +
+					 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+				buttons: []
+			});
+			
+			oListasCorreosGrid.on('click', 'a.editor_' + div_table_name + '_eliminar', function (e) {
+				try {		
+					var oData = fcn_get_row_data($(this), oListasCorreosGrid);
+					
+					__oTrDtDelete = $(this).parents('tr');
+
+					var strTitle = 'Eliminar Correo electrónico';
+					var strQuestion = 'Desea eliminar el correo: ' + oData.correo;
+					var oFunctionOk = function () { 
+						oListasCorreosGrid.DataTable().row(__oTrDtDelete).remove().draw();
+					};
+					var oFunctionCancel = null;
+					show_confirm(strTitle, strQuestion, oFunctionOk, oFunctionCancel);
+				} catch (err) {		
+					var strMensaje = 'a.editor_' + div_table_name + '_editar() :: ' + err.message;
+					show_modal_error(strMensaje);
+				}  
+			} );
+			
+			oListasCorreosGrid.on( 'error.dt', function ( e, settings, techNote, message ) {
+				on_grid_error(e, settings, techNote, message, oDivDisplayErrors);
+			} );
+		} else {
+			oListasCorreosGrid.DataTable().clear().draw();
+			if (aData.length > 0) {
+				oListasCorreosGrid.dataTable().fnAddData(aData);	
+			}
+			setTimeout(function(){ oListasCorreosGrid.DataTable().columns.adjust().responsive.recalc(); }, 500);
+		}
+	} catch (err) {		
+		var strMensaje = 'fcn_cargar_grid_lista_correos() :: ' + err.message;
+		show_modal_error(strMensaje);
+	}
+}
+
+function fcn_cargar_grid_circular_listas(aData) {
+	try {
+		if (oCirculareListasGrid == null) {
+			var oDivDisplayErrors = 'idiv_mensaje_errors';
+			var div_table_name = 'dt_circular_listas';
+			var div_refresh_name = div_table_name + '_refresh';		
+			
+			oCirculareListasGrid = $('#' + div_table_name);
+			
+			oCirculareListasGrid.DataTable({
+				order: [[0, 'desc']],
+				processing: false,
+				serverSide: false,
+				columnDefs: [
+					{ targets: 2, orderable: false }
+				],
+				data: aData,
+				columns: [ 
+					{ "data": "nombre" },
+					{ "data": "descripcion" },
+					{   "data": null,
+						"className": "text-center",
+						"mRender": function (data, type, row) {
+								var sHtml = '';
+								sHtml += '<a class="btn btn-primary btn-xs editor_' + div_table_name + '_ver def_app_btn_tbl_margin"><i class="fa fa-eye" aria-hidden="true"></i></a>';
+								sHtml += '<a class="btn btn-danger btn-xs editor_' + div_table_name + '_eliminar def_app_btn_tbl_margin"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+								return sHtml;
+							} 
+					}
+				],
+				responsive: true,
+				aLengthMenu: [
+					[10, 25, 50, 100, 200, -1],
+					[10, 25, 50, 100, 200, "All"]
+				],
+				iDisplayLength: 10,
+				language: oLanguage,
+				dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+					 "<'row'<'col-sm-12'tr>>" +
+					 "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+				buttons: []
+			});
+			
+			oCirculareListasGrid.on('click', 'a.editor_' + div_table_name + '_ver', function (e) {
+				try {		
+					var oData = fcn_get_row_data($(this), oCirculareListasGrid);
+
+					__nIdListaCorreos = oData.id_lista;
+					fcn_listas_correos_ops('show_lista_correos');
+				} catch (err) {		
+					var strMensaje = 'a.editor_' + div_table_name + '_ver() :: ' + err.message;
+					show_modal_error(strMensaje);
+				}  
+			} );
+
+			oCirculareListasGrid.on('click', 'a.editor_' + div_table_name + '_eliminar', function (e) {
+				try {		
+					var oData = fcn_get_row_data($(this), oCirculareListasGrid);
+					
+					__oTrDtDelete = $(this).parents('tr');
+
+					var strTitle = 'Eliminar Lista de Correos';
+					var strQuestion = 'Desea eliminar la lista de correos: ' + oData.nombre;
+					var oFunctionOk = function () { 
+						oCirculareListasGrid.DataTable().row(__oTrDtDelete).remove().draw();
+					};
+					var oFunctionCancel = null;
+					show_confirm(strTitle, strQuestion, oFunctionOk, oFunctionCancel);
+				} catch (err) {		
+					var strMensaje = 'a.editor_' + div_table_name + '_eliminar() :: ' + err.message;
+					show_modal_error(strMensaje);
+				}  
+			} );
+
+			oCirculareListasGrid.on( 'error.dt', function ( e, settings, techNote, message ) {
+				on_grid_error(e, settings, techNote, message, oDivDisplayErrors);
+			} );
+		} else {
+			oCirculareListasGrid.DataTable().clear().draw();
+			if (aData.length > 0) {
+				oCirculareListasGrid.dataTable().fnAddData(aData);	
+			}
+			setTimeout(function(){ oCirculareListasGrid.DataTable().columns.adjust().responsive.recalc(); }, 500);
+		}
+	} catch (err) {		
+		var strMensaje = 'fcn_cargar_grid_lista_correos() :: ' + err.message;
 		show_modal_error(strMensaje);
 	}
 }
@@ -486,6 +790,7 @@ function fcn_inicializar_circular() {
 
 		$('#idiv_panel_principal').hide();
 		$('#idiv_panel_secundario').show();
+		$('#idiv_panel_listas_correos').hide();
 		
 		$('#isel_tipo_circular').val('interno');
 		$('#itxt_asunto_circular').val('');
@@ -495,6 +800,7 @@ function fcn_inicializar_circular() {
 		var aPreview = new Array(); 
 		var aPreviewConfig = new Array(); 
 		fcn_fill_file_input(aPreview, aPreviewConfig);
+		fcn_cargar_grid_circular_listas([]);
 
 		ajax_get_circular();
     } catch (err) {		
@@ -507,6 +813,7 @@ function fcn_regresar_principal() {
 	try {
 		$('#idiv_panel_principal').show();
 		$('#idiv_panel_secundario').hide();
+		$('#idiv_panel_listas_correos').hide();
 
 		fcn_cargar_grid_circulares();
     } catch (err) {		
@@ -573,7 +880,124 @@ function fcn_envio_pendiente_cancelar() {
 	$('#idiv_mensaje').empty().hide();
 }
 
-/* ..:: Validamos el correo electronico ::.. */
+function fcn_circular_agregar_lista() {
+	try {
+		var oSelLista = $('#isel_lista_correos');
+		var nIdLista = ((oSelLista.val() == null)? '' : oSelLista.val());
+		if (!nIdLista.trim()) { 
+			show_modal_error('Debe seleccionar una lista de correos!');
+			return;
+		}
+
+		if (fcn_buscar_en_grid(nIdLista, oCirculareListasGrid, 'id_lista') == true) {
+			show_modal_error('Esta lista de correos ya se encuentra seleccionada!!!');
+			return false;
+		}
+
+		oCirculareListasGrid.DataTable().row.add({
+			id_lista: nIdLista,
+			nombre: oSelLista.select2('data')[0].text,
+			descripcion: oSelLista.select2('data')[0].descripcion
+		}).draw(false);
+
+		oSelLista.val('').trigger('change');
+    } catch (err) {		
+		var strMensaje = 'fcn_circular_agregar_lista() :: ' + err.message;
+		show_modal_error(strMensaje);
+    }
+}
+
+function fcn_circular_ver_lista() {
+	try {
+		var oSelLista = $('#isel_lista_correos');
+		var nIdLista = ((oSelLista.val() == null)? '' : oSelLista.val());
+		if (nIdLista.trim()) { 
+			__nIdListaCorreos = nIdLista;
+			fcn_listas_correos_ops('show_lista_correos');	
+		}
+    } catch (err) {		
+		var strMensaje = 'fcn_circular_ver_lista() :: ' + err.message;
+		show_modal_error(strMensaje);
+    }
+}
+
+/***************************************************/
+/* ..:: LISTAS DE CORREOS ::.. */
+/***************************************************/
+
+function fcn_listas_correos_ops(pOpt) {
+	try {
+		switch (pOpt) {
+			case 'show':
+				$('#idiv_panel_principal').hide();
+				$('#idiv_panel_secundario').hide();
+				$('#idiv_panel_listas_correos').show();
+
+				fcn_cargar_grid_listas();
+				break;
+		
+			case 'show_lista_correos':
+				show_custom_function_ok('', 'idiv_lista_correo_mensaje');
+				$('#modal_lista_correos .modal-title').html('<i class="fa fa-envelope" aria-hidden="true"></i> Nueva Lista');
+				
+				$('#itxt_mdl_lista_correo_nombre_lista, #itxt_mdl_lista_correo_descripcion').val('');
+				$('#itxt_mdl_lista_correo_correo, #itxt_mdl_lista_correo_nombre').val('');
+				
+				$('#itxt_mdl_lista_correo_nombre_lista, #itxt_mdl_lista_correo_descripcion').prop('disabled', false);
+				$('#ibtn_mdl_lista_correo_guardar').prop('disabled', false);
+				$('#modal_lista_correos').modal({ show: true, backdrop: 'static', keyboard: false });
+
+				fcn_cargar_grid_lista_correos(new Array());				
+				if (__nIdListaCorreos != '') {
+					setTimeout(function () { ajax_get_lista_correos(); }, 750);
+
+					$('#modal_lista_correos .modal-title').html('<i class="fa fa-envelope" aria-hidden="true"></i> Editar Lista de Correos');
+					if ($('#idiv_panel_secundario').is(":visible")) {
+						$('#modal_lista_correos .modal-title').html('<i class="fa fa-eye" aria-hidden="true"></i> Ver Lista de Correos');
+						$('#itxt_mdl_lista_correo_nombre_lista, #itxt_mdl_lista_correo_descripcion').prop('disabled', true);
+					}
+				}			
+				break;
+
+			case 'add_correo':
+				var sEmail = fcn_validate_email('itxt_mdl_lista_correo_correo');
+				var sNombre = $('#itxt_mdl_lista_correo_nombre').val().trim();
+				
+				if (sEmail == '') {
+					show_modal_error('Debe ingresar un correo electrónico v&aacute;lido!');
+					return false;
+				}
+
+				if (sNombre == '') {
+					show_modal_error('Debe agregar un nombre!!!');
+					return false;
+				}
+
+				if (fcn_buscar_en_grid(sEmail, oListasCorreosGrid, 'correo') == true) {
+					show_modal_error('El correo electrónico ya se encuentra en la lista!!!');
+					return false;
+				}
+
+				oListasCorreosGrid.DataTable().row.add({
+					correo: sEmail,
+					nombre: sNombre
+				}).draw(false);
+
+				$('#itxt_mdl_lista_correo_correo').val('');
+				$('#itxt_mdl_lista_correo_nombre').val('');
+				break;
+		}
+    } catch (err) {		
+		var strMensaje = 'fcn_listas_correos_ops() :: ' + err.message;
+		show_modal_error(strMensaje);
+    }
+}
+
+/***************************************************/
+/* ..:: GENERALES ::.. */
+/***************************************************/
+
+/* ..:: Validamos el correo electrónico ::.. */
 function fcn_validate_email(id) {
 	var email_regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i;
 	if(!email_regex.test($("#"+id).val())) {
@@ -583,11 +1007,26 @@ function fcn_validate_email(id) {
 	}
 }
 
+/* ..:: buscamos en el grid ::.. */
+function fcn_buscar_en_grid(sValor, oGrid, sColumnGrid) {
+	var oTable = oGrid.DataTable();
+	var bReturn = false;
+	
+	//oTable.data().each(function (value, index) {
+	$.each(oTable.data(), function (index, value) {
+		if (value[sColumnGrid] == sValor) {
+			bReturn = true;
+		}
+	});
+	
+	return bReturn;
+}
+
 /**********************************************************************************************************************
     AJAX
 ********************************************************************************************************************* */
 
-/* ..:: Guardamos el circular ::.. */
+/* ..:: obtenemos datos del circular ::.. */
 function ajax_get_circular() {
 	try {	
 		var oData = {	
@@ -602,7 +1041,7 @@ function ajax_get_circular() {
 			timeout: 30000,
 			
 			beforeSend: function (dataMessage) {
-				show_load_config(true, 'Guardando informaci&oacute;n, espere un momento por favor... ');
+				show_load_config(true, 'Consultando informaci&oacute;n, espere un momento por favor... ');
 			},
 			success:  function (response) {
 				if (response != '500'){
@@ -622,7 +1061,15 @@ function ajax_get_circular() {
 						$("#ickb_enviar_ejecutivos_expo").prop('checked', ((respuesta.nEnviarEjecutivosExpo == '1')? true : false));
 						$("#ickb_enviar_ejecutivos_nb").prop('checked', ((respuesta.nEnviarEjecutivosNB == '1')? true : false));
 
+						$("#isel_lista_correos").empty().select2({
+							data: respuesta.aListasSelect,
+							theme: "bootstrap",
+							width: "off",
+							placeholder: "Seleccione una Opción"
+						}).val('').trigger('change');
+
 						fcn_fill_file_input(respuesta.aPreview, respuesta.aPreviewConfig);
+						fcn_cargar_grid_circular_listas(respuesta.aListas);
 
 						if (respuesta.nTotalPaginas > 0) {
 							fcn_envio_pendiente(respuesta.nTotalPaginas);
@@ -674,6 +1121,7 @@ function ajax_set_circular(pTask) {
 		var nEnviarEjecutivosImpo = '0';
 		var nEnviarEjecutivosExpo = '0';
 		var nEnviarEjecutivosNB = '0';
+		var aListas = new Array();
 		
 		if ($('#modal_circular').is(':visible')) { 
 			sAsunto = $('#itxt_mdl_circular_asunto').val().trim();
@@ -692,20 +1140,13 @@ function ajax_set_circular(pTask) {
 			nEnviarEjecutivosExpo = fcn_get_checkbox_value('ickb_enviar_ejecutivos_expo');
 			nEnviarEjecutivosNB = fcn_get_checkbox_value('ickb_enviar_ejecutivos_nb');
 			
-			if (sSender == '') {
-				show_modal_error('Debe ingresar un correo electronico v&aacute;lido!');
-				return false;
-			}
+			if (sSender == '') { show_modal_error('Debe ingresar un correo electrónico v&aacute;lido!'); return false; }
+			if (sFromName == '') { show_modal_error('Debe agregar un nombre de remitente!!!'); return false; }
+			if (sMensaje == '') { show_modal_error('Debe agregar un mensaje!!!'); return false; }
 
-			if (sFromName == '') {
-				show_modal_error('Debe agregar un nombre de remitente!!!');
-				return false;
-			}
-
-			if (sMensaje == '') {
-				show_modal_error('Debe agregar un mensaje!!!');
-				return false;
-			}
+			oCirculareListasGrid.DataTable().data().each(function (value, index) {
+				aListas.push({ id_lista: value.id_lista });
+			});
 		}
 		
 		if (sAsunto == '') {
@@ -728,7 +1169,8 @@ function ajax_set_circular(pTask) {
 			nEnviarClientesNB: nEnviarClientesNB,
 			nEnviarEjecutivosImpo: nEnviarEjecutivosImpo,
 			nEnviarEjecutivosExpo: nEnviarEjecutivosExpo,
-			nEnviarEjecutivosNB: nEnviarEjecutivosNB
+			nEnviarEjecutivosNB: nEnviarEjecutivosNB,
+			aListas: JSON.stringify(aListas)
 		};
 
 		$.ajax({
@@ -869,7 +1311,7 @@ function ajax_send_email(pTotalPaginas) {
 			type: "POST",
 			url: 'ajax/circulares/circularesFunc.php',
 			data: oData,
-			timeout: 30000,
+			timeout: 40000,
 			
 			beforeSend: function (dataMessage) {
 				var percent = parseInt((__nTotalPages - pTotalPaginas) * 100 / __nTotalPages);
@@ -926,6 +1368,182 @@ function ajax_send_email(pTotalPaginas) {
 		show_modal_error(strMensaje);
 
 		setTimeout(function () { fcn_inicializar_circular(); }, 500);
+    }    
+}
+
+/***************************************************/
+/* ..:: LISTAS DE CORREOS ::.. */
+/***************************************************/
+
+/* ..:: consultamos los datos de la lista de correos ::.. */
+function ajax_get_lista_correos() {
+	try {	
+		var oData = {	
+			action: 'consultar_lista_correos',
+			nIdListaCorreos: __nIdListaCorreos
+		};
+
+		$.ajax({
+			type: "POST",
+			url: 'ajax/circulares/circularesFunc.php',
+			data: oData,
+			timeout: 30000,
+			
+			beforeSend: function (dataMessage) {
+				show_load_config(true, 'Consultando informaci&oacute;n, espere un momento por favor... ');
+			},
+			success:  function (response) {
+				if (response != '500'){
+					var respuesta = JSON.parse(response);
+					show_load_config(false);
+					if (respuesta.Codigo == '1'){
+						$('#itxt_mdl_lista_correo_nombre_lista').val(respuesta.sNombre);
+						$('#itxt_mdl_lista_correo_descripcion').val(respuesta.sDescripcion);
+
+						fcn_cargar_grid_lista_correos(respuesta.aCorreos);
+					} else {
+						var strMensaje = respuesta.Mensaje + respuesta.Error;
+						show_modal_error(strMensaje);
+					}
+				}else{
+					show_load_config(false);
+					
+					show_modal_error(strSessionMessage);					
+					setTimeout(function () {window.location.replace('../logout.php');},4000);
+				}				
+			},
+			error: function(a,b){
+				show_load_config(false);
+				
+				var strMensaje = a.status+' [' + a.statusText + ']';
+				show_modal_error(strMensaje);
+			}
+		});
+    } catch (err) {
+		show_load_config(false);
+		
+		var strMensaje = 'ajax_get_lista_correos() :: ' + err.message;
+		show_modal_error(strMensaje);
+    }    
+}
+
+/* ..:: Guardamos la lista de correos ::.. */
+function ajax_set_lista_correos() {
+	try {
+		show_custom_function_error('', 'idiv_lista_correo_mensaje');
+		var sNombre = $('#itxt_mdl_lista_correo_nombre_lista').val().trim();
+		var sDescripcion = $('#itxt_mdl_lista_correo_descripcion').val().trim();
+		var aCorreos = new Array();
+
+		if (sNombre == '') {
+			show_modal_error('Debe ingresar un nombre a la lista de correos!');
+			return false;
+		}
+
+		var oTable = oListasCorreosGrid.DataTable();
+		if (oTable.data().count() == 0) {
+			show_modal_error('Debe ingresar por lo menos un correo electrónico!');
+			return false;
+		}
+
+		oTable.data().each(function (value, index) {
+			aCorreos.push(value);
+		});
+		
+		var oData = {	
+			action: 'guardar_lista_correos',
+			sNombre: sNombre,
+			sDescripcion: sDescripcion,
+			nIdListaCorreos: __nIdListaCorreos,
+			aCorreos: JSON.stringify(aCorreos)
+		};
+
+		$.ajax({
+			type: "POST",
+			url: 'ajax/circulares/circularesFunc.php',
+			data: oData,
+			timeout: 30000,
+			
+			beforeSend: function (dataMessage) {
+				show_load_config(true, 'Guardando informaci&oacute;n, espere un momento por favor... ');
+			},
+			success:  function (response) {
+				show_load_config(false);
+				if (response != '500'){
+					var respuesta = JSON.parse(response);					
+					if (respuesta.Codigo == '1'){
+						$('#ibtn_mdl_lista_correo_guardar').prop('disabled', true);
+						show_custom_function_ok(respuesta.Mensaje, 'idiv_lista_correo_mensaje', 'margin: 0px;');
+						fcn_cargar_grid_listas();
+					} else {
+						var strMensaje = respuesta.Mensaje + respuesta.Error;
+						show_modal_error(strMensaje);
+					}
+				} else {					
+					show_modal_error(strSessionMessage);					
+					setTimeout(function () {window.location.replace('../logout.php');},4000);
+				}				
+			},
+			error: function(a,b){
+				show_load_config(false);
+				
+				var strMensaje = a.status+' [' + a.statusText + ']';
+				show_modal_error(strMensaje);
+			}
+		});
+    } catch (err) {
+		show_load_config(false);
+		
+		var strMensaje = 'ajax_set_lista_correos() :: ' + err.message;
+		show_modal_error(strMensaje);
+    }    
+}
+
+/* ..:: Eliminar la lista de correos ::.. */
+function ajax_del_lista_correos() {
+	try {
+		var oData = {	
+			action: 'eliminar_lista_correos',
+			nIdListaCorreos: __nIdListaCorreos
+		};
+
+		$.ajax({
+			type: "POST",
+			url: 'ajax/circulares/circularesFunc.php',
+			data: oData,
+			timeout: 30000,
+			
+			beforeSend: function (dataMessage) {
+				show_load_config(true, 'Actualizando informaci&oacute;n, espere un momento por favor... ');
+			},
+			success:  function (response) {
+				show_load_config(false);
+				if (response != '500'){
+					var respuesta = JSON.parse(response);					
+					if (respuesta.Codigo == '1'){
+						show_modal_ok(respuesta.Mensaje);
+						fcn_cargar_grid_listas();
+					} else {
+						var strMensaje = respuesta.Mensaje + respuesta.Error;
+						show_modal_error(strMensaje);
+					}
+				} else {					
+					show_modal_error(strSessionMessage);					
+					setTimeout(function () {window.location.replace('../logout.php');},4000);
+				}				
+			},
+			error: function(a,b){
+				show_load_config(false);
+				
+				var strMensaje = a.status+' [' + a.statusText + ']';
+				show_modal_error(strMensaje);
+			}
+		});
+    } catch (err) {
+		show_load_config(false);
+		
+		var strMensaje = 'ajax_del_lista_correos() :: ' + err.message;
+		show_modal_error(strMensaje);
     }    
 }
 

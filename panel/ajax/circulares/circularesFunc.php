@@ -10,13 +10,27 @@ $nMaxRowPerPage = 30;
 $bDebug = ((strpos($_SERVER['REQUEST_URI'], 'monitorpruebas/') !== false)? true : false);
 
 if($loggedIn == false){
-	$error_msg="Se ha perdido la sesion favor de iniciarla de nuevo";
-	exit('500');
-	//exit(json_encode(array("error" => $error_msg)));
+	$action = $_REQUEST['action'];
+	switch ($action) {
+		case 'table_circulares':
+		case 'table_listas_correos':
+			exit(json_encode(array("error" => '500')));
+			break;
+		default:
+			exit('500');
+	}
 } else {
 	if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		$action = $_REQUEST['action'];
 		switch ($action) {
+			case 'table_circulares' : $respuesta = fcn_table_circulares();
+				echo json_encode($respuesta);
+				break;
+
+			case 'table_listas_correos' : $respuesta = fcn_table_listas_correos();
+				echo json_encode($respuesta);
+				break;
+
 			case 'guadar_circular' : $respuesta = fcn_guadar_circular();
 				echo json_encode($respuesta);
 				break;
@@ -48,8 +62,92 @@ if($loggedIn == false){
 			case 'enviar_email' : $respuesta = fcn_enviar_email();
 				echo json_encode($respuesta);
 				break;
+
+			case 'guardar_lista_correos' : $respuesta = fcn_guardar_lista_correos();
+				echo json_encode($respuesta);
+				break;
+
+			case 'consultar_lista_correos' : $respuesta = fcn_consultar_lista_correos();
+				echo json_encode($respuesta);
+				break;
+
+			case 'eliminar_lista_correos' : $respuesta = fcn_eliminar_lista_correos();
+				echo json_encode($respuesta);
+				break;
 		}
 	}
+}
+
+/*************************************************************************************************/
+/* TABLAS                                                                                        */
+/*************************************************************************************************/
+
+function fcn_table_circulares(){
+	global $_POST, $bDebug, $baseSql, $mysqluser, $mysqlpass, $mysqldb, $mysqlserver, $id;
+	
+	$table = 'circulares';
+	$primaryKey = 'id_circular';
+
+	$columns = array(
+		array( 'db' => 'id_circular',     'dt' => 'id_circular' ),
+		array( 'db' => 'tipo',     'dt' => 'tipo' ),
+		array( 'db' => 'asunto',     'dt' => 'asunto' ),
+		array( 'db' => 'fecha',     'dt' => 'fecha', 'formatter' => function( $d, $row ) {
+			if ($d==''){
+				return '';
+			}else{				
+				return date( 'd/m/Y H:i A', strtotime($d)); 
+			}               
+		})
+	);
+
+	$sql_details = array(
+		'user' => $mysqluser,
+		'pass' => $mysqlpass,
+		'db'   => $mysqldb,
+		'host' => $mysqlserver
+	);
+
+	$baseSql = "SELECT id_circular, tipo, asunto, IF(fecha_enviado IS NULL, fecha_insertado, fecha_enviado) AS fecha
+				FROM bodega.circulares
+				WHERE fecha_eliminado IS NULL";
+
+	require('./../../ssp.class.php');
+	return	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns );
+}
+
+function fcn_table_listas_correos(){
+	global $_POST, $bDebug, $baseSql, $mysqluser, $mysqlpass, $mysqldb, $mysqlserver, $id;
+	
+	$table = 'circulares_lista';
+	$primaryKey = 'id_lista';
+
+	$columns = array(
+		array( 'db' => 'id_lista',         'dt' => 'id_lista' ),
+		array( 'db' => 'nombre',           'dt' => 'nombre' ),
+		array( 'db' => 'descripcion',      'dt' => 'descripcion' ),
+		array( 'db' => 'fecha_insertado',  'dt' => 'fecha', 'formatter' => function( $d, $row ) {
+			if ($d==''){
+				return '';
+			}else{				
+				return date( 'd/m/Y H:i A', strtotime($d)); 
+			}               
+		})
+	);
+
+	$sql_details = array(
+		'user' => $mysqluser,
+		'pass' => $mysqlpass,
+		'db'   => $mysqldb,
+		'host' => $mysqlserver
+	);
+
+	$baseSql = "SELECT id_lista, nombre, descripcion, fecha_insertado
+				FROM bodega.circulares_lista
+				WHERE fecha_eliminado IS NULL";
+
+	require('./../../ssp.class.php');
+	return	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns );
 }
 
 /*************************************************************************************************/
@@ -77,19 +175,15 @@ function fcn_guadar_circular(){
 		$nEnviarEjecutivosImpo = $_POST['nEnviarEjecutivosImpo'];
 		$nEnviarEjecutivosExpo = $_POST['nEnviarEjecutivosExpo'];
 		$nEnviarEjecutivosNB = $_POST['nEnviarEjecutivosNB'];
+		$aListas = json_decode($_POST['aListas']);
 		
 		//***********************************************************//
 		
 		$fecha_registro =  date("Y-m-d H:i:s");
 		
-		//error_log('ENTRANDO');
 		$sMensaje = eliminar_comentarios_html($sMensaje);
-		//error_log('SIN COMENTARIOS '.$sMensaje);
-
 		$sHtmlCode = htmlentities(htmlspecialchars($sMensaje));
 		$nTotalPaginas = 0;
-
-		//error_log($sHtmlCode);
 		
 		//***********************************************************//
 		
@@ -133,6 +227,8 @@ function fcn_guadar_circular(){
 				
 			case 'editar':
 			case 'editar-enviar':
+				mysqli_query($cmysqli, "BEGIN");
+
 				$consulta = "UPDATE bodega.circulares
 							 SET tipo='".$sTipo."',
 								 remitente='".$sSender."',
@@ -155,9 +251,37 @@ function fcn_guadar_circular(){
 					$respuesta['Codigo']=-1;
 					$respuesta['Mensaje']='Error al actualizar circular. Por favor contacte al administrador del sistema.'.$consulta; 
 					$respuesta['Error'] = ' ['.$error.']';
-				} else {
+				}
+				
+				if ($respuesta['Codigo'] == 1) {
+					$consulta = "DELETE FROM bodega.circulares_correos WHERE id_circular=".$nIdCircular;			
+					$query = mysqli_query($cmysqli, $consulta);
+					if (!$query) {
+						$error=mysqli_error($cmysqli);
+						$respuesta['Codigo']=-1;
+						$respuesta['Mensaje']='Error al guardar la lista de correos. Por favor contacte al administrador del sistema.'; 
+						$respuesta['Error'] = ' ['.$error.']';
+					} else {
+						$consulta = '';
+						foreach ($aListas as &$item) {
+							$consulta .= (($consulta == '')? '' : ',');
+							$consulta .= "(".$nIdCircular.", '".$item->id_lista."')";
+						}
+
+						$consulta = 'INSERT INTO bodega.circulares_correos (id_circular, id_lista) VALUES '.$consulta;
+						$query = mysqli_query($cmysqli, $consulta);
+						if (!$query) {
+							$error=mysqli_error($cmysqli);
+							$respuesta['Codigo']=-1;
+							$respuesta['Mensaje']='Error al guardar la lista de correos. Por favor contacte al administrador del sistema.'; 
+							$respuesta['Error'] = ' ['.$error.']';
+						}
+					}
+				}
+
+				if ($respuesta['Codigo'] == 1) {
 					if ($sTask == 'editar-enviar') {
-						$respPaginacion = fcn_generar_paginas_correos();
+						$respPaginacion = fcn_generar_paginas_correos($cmysqli);
 						if ($respPaginacion['Codigo'] == '1') { 
 							$nTotalPaginas = count($respPaginacion['aSendEmails']);
 						} else {
@@ -165,6 +289,13 @@ function fcn_guadar_circular(){
 						}
 					}
 				}
+				
+				if ($respuesta['Codigo'] == 1) { 
+					mysqli_query($cmysqli, "COMMIT");
+				} else {
+					mysqli_query($cmysqli, "ROLLBACK");
+				}
+
 				break;
 		}
 		
@@ -208,6 +339,8 @@ function fcn_consultar_circular(){
 		$aPreview = array();
 		$aPreviewConfig = array();
 		$nTotalPaginas = 0;
+		$aListas = array();
+		$aListasSelect = array();
 
 		//***********************************************************//
 		
@@ -251,6 +384,47 @@ function fcn_consultar_circular(){
 		}
 		
 		if ($respuesta['Codigo'] == '1') {
+			$consulta = "SELECT id_lista, nombre, descripcion
+						 FROM bodega.circulares_lista
+						 WHERE fecha_eliminado IS NULL";
+
+			$query = mysqli_query($cmysqli, $consulta);
+			if (!$query) {
+				$error=mysqli_error($cmysqli);
+				$respuesta['Codigo']=-1;
+				$respuesta['Mensaje']='Error al las listas de correos. Por favor contacte al administrador del sistema.'; 
+				$respuesta['Error'] = ' ['.$error.']';
+			} else {
+				while($row = mysqli_fetch_array($query)){
+					array_push($aListasSelect, array('id' => $row['id_lista'],
+											         'text' => $row['nombre'],
+											         'descripcion' => $row['descripcion']));
+				}
+			}
+		}
+
+		if ($respuesta['Codigo'] == '1') {
+			$consulta = "SELECT cirLista.id_lista, cirLista.nombre, cirLista.descripcion
+						 FROM bodega.circulares_correos AS cirCorreos INNER JOIN
+							  bodega.circulares_lista AS cirLista ON cirLista.id_lista=cirCorreos.id_lista
+						 WHERE cirCorreos.id_circular=".$nIdCircular;
+
+			$query = mysqli_query($cmysqli, $consulta);
+			if (!$query) {
+				$error=mysqli_error($cmysqli);
+				$respuesta['Codigo']=-1;
+				$respuesta['Mensaje']='Error al consultar el circular. Por favor contacte al administrador del sistema.'; 
+				$respuesta['Error'] = ' ['.$error.']';
+			} else {
+				while($row = mysqli_fetch_array($query)){
+					array_push($aListas, array('id_lista' => $row['id_lista'],
+											   'nombre' => $row['nombre'],
+											   'descripcion' => $row['descripcion']));
+				}
+			}
+		}
+		
+		if ($respuesta['Codigo'] == '1') {
 			$aArchivos = fcn_consultar_archivos();
 
 			if ($aArchivos['Codigo'] == '1') {
@@ -278,6 +452,8 @@ function fcn_consultar_circular(){
 		$respuesta['aPreview']=$aPreview;
 		$respuesta['aPreviewConfig']=$aPreviewConfig;
 		$respuesta['nTotalPaginas']=$nTotalPaginas;
+		$respuesta['aListas']=$aListas;
+		$respuesta['aListasSelect']=$aListasSelect;
 	} else {
 		$respuesta['Codigo']=-1;
 		$respuesta['Mensaje']='No se recibieron datos';
@@ -664,12 +840,8 @@ function fcn_enviar_email(){
 				/********************************/
 				//Guardamos en el log
 				
-				$consulta = "INSERT INTO bodega.circulares_log
-							    (id_circular
-								,correos)
-							 VALUES 
-							    ('".$nIdCircular."'
-								,'".json_encode($aBcc)."')";
+				$consulta = "INSERT INTO bodega.circulares_log (id_circular, correos)
+							 VALUES ('".$nIdCircular."', '".json_encode($aBcc)."')";
 				$query = mysqli_query($cmysqli, $consulta);
 				if (!$query) {
 					$error=mysqli_error($cmysqli);
@@ -680,7 +852,7 @@ function fcn_enviar_email(){
 					/********************************/
 				
 					if ($bDebug) {
-						error_log('Se borra aBcc');
+						error_log('Se borra aBcc: '.json_encode($aBcc));
 						$aBcc = array();
 						array_push($aBcc,'jcdelacruz@delbravo.com');
 					}
@@ -737,6 +909,197 @@ function fcn_enviar_email(){
 	return $respuesta;
 }
 
+/**************************/
+/* LISTA DE CORREOS       */
+/**************************/
+
+function fcn_guardar_lista_correos(){
+	include ('./../../../connect_dbsql.php');
+	
+	global $_POST, $bDebug;
+	
+	$respuesta['Codigo']=1;
+	if (isset($_POST['sNombre']) && !empty($_POST['sNombre'])) {
+		$sNombre = $_POST['sNombre'];
+		$sDescripcion = $_POST['sDescripcion'];
+		$nIdListaCorreos = $_POST['nIdListaCorreos'];
+		$aCorreos = json_decode($_POST['aCorreos']);
+		
+		//***********************************************************//
+		
+		mysqli_query($cmysqli, "BEGIN");
+
+		if ($nIdListaCorreos == '') {
+			$consulta = "INSERT INTO bodega.circulares_lista (nombre, descripcion)
+						 VALUES 
+						    ('".$sNombre."'
+							,'".$sDescripcion."')";
+			
+			$query = mysqli_query($cmysqli, $consulta);
+			if (!$query) {
+				$error=mysqli_error($cmysqli);
+				$respuesta['Codigo']=-1;
+				$respuesta['Mensaje']='Error al insertar lista de correos. Por favor contacte al administrador del sistema.'; 
+				$respuesta['Error'] = ' ['.$error.']';
+			} else {
+				$nIdListaCorreos = mysqli_insert_id($cmysqli);
+			}
+		} else {
+			$consulta = "UPDATE bodega.circulares_lista
+						 SET nombre='".$sNombre."',
+						 	 descripcion='".$sDescripcion."'
+						 WHERE id_lista=".$nIdListaCorreos;
+			
+			$query = mysqli_query($cmysqli, $consulta);
+			if (!$query) {
+				$error=mysqli_error($cmysqli);
+				$respuesta['Codigo']=-1;
+				$respuesta['Mensaje']='Error al actualizar lista de correos. Por favor contacte al administrador del sistema.'; 
+				$respuesta['Error'] = ' ['.$error.']';
+			}
+		}
+
+		if ($respuesta['Codigo'] == 1) {
+			$consulta = "DELETE FROM bodega.circulares_lista_correos WHERE id_lista=".$nIdListaCorreos;			
+			$query = mysqli_query($cmysqli, $consulta);
+			if (!$query) {
+				$error=mysqli_error($cmysqli);
+				$respuesta['Codigo']=-1;
+				$respuesta['Mensaje']='Error al eliminar correos. Por favor contacte al administrador del sistema.'; 
+				$respuesta['Error'] = ' ['.$error.']';
+			}
+		}
+
+		if ($respuesta['Codigo'] == 1) {
+			$consulta = '';
+			foreach ($aCorreos as &$item) {
+				$consulta .= (($consulta == '')? '' : ',');
+				$consulta .= "(".$nIdListaCorreos.", '".$item->correo."', '".$item->nombre."')";
+			}
+
+			$consulta = 'INSERT INTO bodega.circulares_lista_correos (id_lista, email, nombre) VALUES '.$consulta;
+			$query = mysqli_query($cmysqli, $consulta);
+			if (!$query) {
+				$error=mysqli_error($cmysqli);
+				$respuesta['Codigo']=-1;
+				$respuesta['Mensaje']='Error al insertar correos. Por favor contacte al administrador del sistema.'; 
+				$respuesta['Error'] = ' ['.$error.']';
+			}
+		}
+
+		if ($respuesta['Codigo'] == 1) { 
+			mysqli_query($cmysqli, "COMMIT");
+			$respuesta['Mensaje']='Lista guardada correctamente.'; 
+		} else {
+			mysqli_query($cmysqli, "ROLLBACK");
+		}
+	} else {
+		$respuesta['Codigo']=-1;
+		$respuesta['Mensaje']='No se recibieron datos';
+		$respuesta['Error'] = '';
+	}	
+	return $respuesta;
+}
+
+function fcn_consultar_lista_correos(){
+	include ('./../../../connect_dbsql.php');
+	
+	global $_POST, $bDebug;
+	
+	$respuesta['Codigo']=1;
+	if (isset($_POST['nIdListaCorreos']) && !empty($_POST['nIdListaCorreos'])) {
+		$nIdListaCorreos = $_POST['nIdListaCorreos'];
+		
+		//***********************************************************//
+		
+		$fecha_registro = date("Y-m-d H:i:s");
+		
+		$sNombre = '';
+		$sDescripcion = '';
+		$aCorreos = array();
+
+		//***********************************************************//
+		
+		$consulta = "SELECT nombre, descripcion
+					 FROM bodega.circulares_lista
+					 WHERE id_lista=".$nIdListaCorreos;
+
+		$query = mysqli_query($cmysqli, $consulta);
+		if (!$query) {
+			$error=mysqli_error($cmysqli);
+			$respuesta['Codigo']=-1;
+			$respuesta['Mensaje']='Error al consultar la lista de correos. Por favor contacte al administrador del sistema.'; 
+			$respuesta['Error'] = ' ['.$error.']';
+		} else {
+			while($row = mysqli_fetch_array($query)){
+				$sNombre = $row['nombre'];
+				$sDescripcion = $row['descripcion'];
+				break;
+			}
+		}
+		
+		if ($respuesta['Codigo'] == '1') {
+			$consulta = "SELECT nombre, email
+						 FROM bodega.circulares_lista_correos
+						 WHERE id_lista=".$nIdListaCorreos;
+
+			$query = mysqli_query($cmysqli, $consulta);
+			if (!$query) {
+				$error=mysqli_error($cmysqli);
+				$respuesta['Codigo']=-1;
+				$respuesta['Mensaje']='Error al consultar la lista de correos. Por favor contacte al administrador del sistema.'; 
+				$respuesta['Error'] = ' ['.$error.']';
+			} else {
+				while($row = mysqli_fetch_array($query)){
+					array_push($aCorreos, array('nombre' => $row['nombre'],
+												'correo' => $row['email']));
+				}
+			}
+		}
+
+		$respuesta['sNombre']=$sNombre;
+		$respuesta['sDescripcion']=$sDescripcion;
+		$respuesta['aCorreos']=$aCorreos;
+	} else {
+		$respuesta['Codigo']=-1;
+		$respuesta['Mensaje']='No se recibieron datos';
+		$respuesta['Error'] = '';
+	}	
+	return $respuesta;
+}
+
+function fcn_eliminar_lista_correos(){
+	include ('./../../../connect_dbsql.php');
+	
+	global $_POST, $bDebug;
+	
+	$respuesta['Codigo']=1;
+	if (isset($_POST['nIdListaCorreos']) && !empty($_POST['nIdListaCorreos'])) {
+		$nIdListaCorreos = $_POST['nIdListaCorreos'];
+		
+		//***********************************************************//
+		
+		$consulta = "UPDATE bodega.circulares_lista
+					 SET fecha_eliminado=NOW()
+					 WHERE id_lista=".$nIdListaCorreos;
+		
+		$query = mysqli_query($cmysqli, $consulta);
+		if (!$query) {
+			$error=mysqli_error($cmysqli);
+			$respuesta['Codigo']=-1;
+			$respuesta['Mensaje']='Error al actualizar lista de correos. Por favor contacte al administrador del sistema.'; 
+			$respuesta['Error'] = ' ['.$error.']';
+		} else {
+			$respuesta['Mensaje']='Lista eliminada correctamente.'; 
+		}
+	} else {
+		$respuesta['Codigo']=-1;
+		$respuesta['Mensaje']='No se recibieron datos';
+		$respuesta['Error'] = '';
+	}	
+	return $respuesta;
+}
+
 /*************************************************************************************************/
 /* FUNCIONES                                                                                     */
 /*************************************************************************************************/
@@ -778,9 +1141,7 @@ function fcn_recurse_copy($src, $dst) {
 }
 
 /* Obtenemos los correos */ 
-function fcn_generar_paginas_correos() {
-	include ('./../../../connect_dbsql.php');
-
+function fcn_generar_paginas_correos($cmysqli) {
 	global $_POST, $bDebug, $nMaxRowPerPage;
 
 	$respuesta['Codigo']=1;
@@ -810,14 +1171,6 @@ function fcn_generar_paginas_correos() {
 			$sFrom .= (($sFrom == '')? '' : ' UNION ALL ');
 			$sFrom .= "SELECT '".trim($email)."' AS correos, 'NA' AS cliente_id, 'Manual' AS nombre, 'NA' AS tabla";
 		}
-		/*$aPagina = array();
-		foreach($aCorreosAdicionales as $email){
-			array_push($aPagina, trim($email));
-		}
-	
-		if (count($aPagina) > 0) {
-			array_push($aSendEmails, $aPagina);
-		}*/
 	}
 	
 	//***********************************************************//
@@ -859,7 +1212,7 @@ function fcn_generar_paginas_correos() {
 				   SELECT to10 AS correos, f_numcli AS cliente_id, nombre, 'bodega.geocel_clientes_nb' AS tabla FROM bodega.geocel_clientes_nb ";
 	}
 
-	/* ..:: Ejecutivos ::.. */	
+	/* ..:: Ejecutivos ::.. */
 	if ($nEnviarEjecutivosImpo == '1') {
 		$sFrom .= (($sFrom == '')? '' : ' UNION ALL ');
 
@@ -894,6 +1247,17 @@ function fcn_generar_paginas_correos() {
 				   SELECT cc8 AS correos, f_numcli AS cliente_id, nombre, 'bodega.geocel_clientes_nb' AS tabla  FROM bodega.geocel_clientes_nb UNION ALL
 				   SELECT cc9 AS correos, f_numcli AS cliente_id, nombre, 'bodega.geocel_clientes_nb' AS tabla  FROM bodega.geocel_clientes_nb UNION ALL
 				   SELECT cc10 AS correos, f_numcli AS cliente_id, nombre, 'bodega.geocel_clientes_nb' AS tabla  FROM bodega.geocel_clientes_nb ";
+	}
+
+	/* ..:: Listas de correos ::.. */
+	if ($sFrom != '') { 
+		$sFrom .= (($sFrom == '')? '' : ' UNION ALL ');
+
+		$sFrom .= "SELECT cirListCorreos.email AS correos, 'NA' AS cliente_id, cirListCorreos.nombre AS nombre, 'bodega.circulares_lista_correos' AS tabla
+				   FROM bodega.circulares_correos AS cirCorreos INNER JOIN
+						bodega.circulares_lista AS cirLista ON cirLista.id_lista=cirCorreos.id_lista INNER JOIN     
+						bodega.circulares_lista_correos AS cirListCorreos ON cirListCorreos.id_lista=cirLista.id_lista
+				   WHERE cirCorreos.id_circular=".$nIdCircular." ";
 	}
 
 	if ($sFrom != '') {

@@ -42,6 +42,10 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<!-- Switch -->
 	<link href="../bower_components/switch/css/style_switch.css" rel="stylesheet" type="text/css">
 	
+	<!-- Select2 CSS -->
+	<link href="../bower_components/select2/dist/css/select2.min.css" rel="stylesheet" />
+	<link href="../bower_components/select2-bootstrap-theme/dist/select2-bootstrap.min.css" rel="stylesheet" />
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -54,6 +58,8 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 
 		div.note-editable p { font-size: 14px !important; }
 		ul.dropdown-style li a p { font-size: 14px !important; }
+
+		.def_app_btn_tbl_margin { margin-left: 5px; margin-right: 5px; }
 	</style>
 </head>
 
@@ -192,6 +198,93 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 			</div>
 		</div>
 	
+		<!-- MODAL AGREGAR CORREOS A LISTA -->
+		<div id="modal_lista_correos" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title"><i class="fa fa-envelope" aria-hidden="true"></i> Nueva Lista</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="form-group">
+									<div class="input-group">
+										<span class="input-group-addon">Nombre de Lista</span>
+										<input id="itxt_mdl_lista_correo_nombre_lista" class="form-control" type="text" maxlength="50">
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12">
+								<div class="form-group" style="margin-bottom: 0px;">
+									<div class="input-group">
+										<span class="input-group-addon">Descripción</span>
+										<input id="itxt_mdl_lista_correo_descripcion" class="form-control" type="text" maxlength="200">
+									</div>
+								</div>
+							</div>
+						</div>
+						<hr style="margin-top: 8px; margin-bottom: 8px; border: none; border-top: none; background: #b7b7b7; height: 2px;">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="form-group">
+									<div class="input-group">
+										<div class="input-group-addon">Correo</div>
+										<input id="itxt_mdl_lista_correo_correo" type="text" maxlength="70" class="form-control text-lowercase">
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12">
+								<div class="form-group">
+									<div class="input-group">
+										<div class="input-group-addon">Nombre</div>
+										<input id="itxt_mdl_lista_correo_nombre" type="text" maxlength="100" class="form-control">
+										<span class="input-group-btn">
+											<button class="btn btn-success" type="button" onclick="fcn_listas_correos_ops('add_correo');"><i class="fa fa-plus" aria-hidden="true"></i></button>
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="dataTable_wrapper">
+									<div class="table-responsive" style="overflow:hidden;">
+										<table id="dt_lista_correos" class="table table-striped table-bordered" width="100%">
+											<thead>
+												<tr>
+													<th>Correo</th>
+													<th>Nombre</th>
+													<th style="width:50px;"></th>
+												</tr>
+											</thead>
+											<tfoot>
+												<tr>
+													<th>Correo</th>
+													<th>Nombre</th>
+													<th style="width:50px;"></th>
+												</tr>
+											</tfoot>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<div id="idiv_lista_correo_mensaje"></div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger pull-left" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-ban"></i> Salir</button>
+						<button id="ibtn_mdl_lista_correo_guardar" type="button" class="btn btn-success" onClick="javascript:ajax_set_lista_correos();"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div class="jumbotron" style="padding: 10px; margin: 0px;"> 
 			<div id="idiv_panel_principal" class="panel panel-default" style="margin-bottom: 0px;">
 				<div class="panel-heading">
@@ -400,6 +493,49 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 											</div>
 										</div>
 									</div>
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="panel panel-default">
+												<div class="panel-heading">Lista de Correos</div>
+												<div class="panel-body">
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-addon">Listas disponibles</small></div>
+															<select class="form-control" id="isel_lista_correos"></select>
+															<span class="input-group-btn">
+																<button class="btn btn-success" type="button" onclick="fcn_circular_agregar_lista();"><i class="fa fa-plus" aria-hidden="true"></i></button>
+																<button class="btn btn-primary" type="button" onclick="fcn_circular_ver_lista();"><i class="fa fa-eye" aria-hidden="true"></i></button>
+															</span>
+														</div>
+													</div>
+
+													<div class="form-group">
+														<div class="dataTable_wrapper">
+															<div class="table-responsive" style="overflow:hidden;">
+																<table id="dt_circular_listas" class="table table-striped table-bordered" width="100%">
+																	<thead>
+																		<tr>
+																			<th>Nombre</th>
+																			<th>Descripción</th>
+																			<th style="width:100px;"></th>
+																		</tr>
+																	</thead>
+																	<tfoot>
+																		<tr>
+																			<th>Nombre</th>
+																			<th>Descripción</th>
+																			<th style="width:100px;"></th>
+																		</tr>
+																	</tfoot>
+																</table>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
 								</div>
 								<!-- /.panel-body -->
 							</div>
@@ -434,6 +570,49 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 					<!--button type="button" class="btn btn-success pull-right" onclick="fcn_send_emails();"><i class="fa fa-paper-plane"></i> Enviar</button-->
 				</div>
 			</div>
+
+			<div id="idiv_panel_listas_correos" class="panel panel-default" style="margin-bottom: 0px; display:none;">
+				<div class="panel-heading">
+					<strong> Listas de correos</strong>			
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-lg-12">
+							<div id="idiv_listasc_mensaje"></div>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="dataTable_wrapper">
+								<div class="table-responsive" style="overflow:hidden;">
+									<table id="dt_listas" class="table table-striped table-bordered" width="100%">
+										<thead>
+											<tr>
+												<th style="width:120px;">Fecha</th>
+												<th>Nombre</th>
+												<th>Descripción</th>
+												<th style="width:100px;"></th>
+											</tr>
+										</thead>
+										<tfoot>
+											<tr>
+												<th style="width:120px;">Fecha</th>
+												<th>Nombre</th>
+												<th>Descripción</th>
+												<th></th>
+											</tr>
+										</tfoot>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer">
+					<button type="button" class="btn btn-danger" onclick="fcn_regresar_principal();"><i class="fa fa-ban"></i> Salir</button>
+				</div>
+			</div>
 		</div>
     </div>
     <!-- /#wrapper -->
@@ -465,9 +644,6 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<script src="../bower_components/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
 	<script src="../bower_components/datatables.net-select/js/dataTables.select.min.js"></script>
 	<script src="../bower_components/datatables.net-fixedcolumns/js/dataTables.fixedColumns.min.js"></script>
-	<!--script src="../editor/js/dataTables.editor.min.js"></script>
-	<script src="../editor/js/editor.bootstrap.min.js"></script>
-	<script src="../editor/js/editor.selectize.js"></script-->
 
 	<script type="text/javascript" language="javascript" src="../bower_components/jszip/dist/jszip.min.js"></script>
 	<!--[if (gte IE 9) | (!IE)]><!-->
@@ -476,7 +652,6 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<!--<![endif]-->
 	
 	<!-- Fileinput JS -->
-	<!--script type="text/javascript" language="javascript" src="http://plugins.krajee.com/assets/24b9d388/js/plugins/purify.min.js"></script-->
 	<script type="text/javascript" language="javascript" src="../bower_components/bootstrap-fileinput-4.2.3/js/fileinput.min.js"></script>
 	<script type="text/javascript" language="javascript" src="../bower_components/bootstrap-fileinput-4.2.3/js/locales/es.js"></script>
 
@@ -484,6 +659,9 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<script src="../bower_components/summernote/dist/summernote.min.js"></script>
 	<script src="../bower_components/summernote/dist/lang/summernote-es-ES.min.js"></script>
 
+	<!-- Select2 -->
+	<script type="text/javascript" src="../bower_components/select2/dist/js/select2.min.js"></script>
+	<script type="text/javascript" src="../bower_components/select2/dist/js/i18n/es.js"></script>
 
 	<script src="../js/circulares.js?v=2018.05.15.1730"></script>
 </body>
