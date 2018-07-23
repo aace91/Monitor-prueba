@@ -96,11 +96,10 @@ if ($loggedIn == false){
 							$strNUM_FACT = odbc_result($query,"NUM_FACT");
 							
 							$consulta="SELECT REFERENCIA, PEDIMENTO
-									FROM bodega.facturas_expo
-									WHERE FACTURA_NUMERO='".$strNUM_FACT."' AND
-											CONS_FACT_PED=".$strCONS_FACT." AND
-											REFERENCIA='".$strReferencia."'";
-												
+									   FROM bodega.facturas_expo
+									   WHERE CONS_FACT_PED=".$strCONS_FACT." AND
+											 REFERENCIA='".$strReferencia."'";
+							
 							$query = mysqli_query($cmysqli, $consulta);			
 							if (!$query) {
 								$error=mysqli_error($cmysqli);
