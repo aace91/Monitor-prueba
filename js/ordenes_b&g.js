@@ -16,6 +16,7 @@ var strSessionMessage = 'La sesión del usuario ha caducado, por favor acceda de
 var sGifLoader = '<img src="../images/cargando.gif" height="16" width="16"/>';
 
 var oReferenciasGrid = null;
+var __sReferencia;
 
 var __sDebug = ((window.location.pathname.indexOf("pruebas/") >= 0)? true : false);
 
@@ -137,7 +138,7 @@ function fcn_cargar_grid_entradas(bReloadPaging) {
 		show_custom_function_error('', 'idiv_bwsr_mensaje');
 		if (oReferenciasGrid == null) {
 			var oDivDisplayErrors = 'idiv_bwsr_mensaje';
-			var div_table_name = 'dt_incrementables';
+			var div_table_name = 'dt_ordenes';
 			var div_refresh_name = div_table_name + '_refresh';		
 			
 			oReferenciasGrid = $('#' + div_table_name);
@@ -177,7 +178,18 @@ function fcn_cargar_grid_entradas(bReloadPaging) {
 					{ "data": "fecha_envio" },
 					{ "data": "fecha_entrega" },
 					{ "data": "flete" },
-					{ "data": "temperatura" }
+					{ "data": "temperatura" },
+					{ 
+						"data": null,
+						"className": "text-center",
+						"mRender": function (data, type, row) {
+							var sHtml = '';
+							if (row.PORLLEGAR == true || row.PORLLEGAR == 1) {
+								sHtml += '<a class="btn btn-danger btn-xs editor_' + div_table_name + '_eliminar"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+							}							
+							return sHtml;
+						}
+					},
 				],
 				responsive: true,
 				aLengthMenu: [
@@ -228,15 +240,33 @@ function fcn_cargar_grid_entradas(bReloadPaging) {
 			oReferenciasGrid.on( 'error.dt', function ( e, settings, techNote, message ) {
 				on_grid_error(e, settings, techNote, message, oDivDisplayErrors);
 			} );
+
+			oReferenciasGrid.on('click', 'a.editor_' + div_table_name + '_eliminar', function (e) {
+				try {		
+					var oData = fcn_get_row_data($(this), oReferenciasGrid);
+					var sPO = oData.po;
+					__sReferencia = oData.referencia;
+
+					var strQuestion = 'Al realizar esta acción, toda la informacion de la referencia <strong>' + __sReferencia + '</strong> sera eliminada de bodega, ';
+					strQuestion += 'desea eliminar la referencia <strong>' + __sReferencia + '</strong>?';
+					$('#idiv_mdl_eliminar_mensaje').html(strQuestion);
+					$('#itxt_mdl_eliminar_observacion').val('');
+
+					$('#modal_eliminar').modal({ show: true });
+				} catch (err) {		
+					var strMensaje = 'a.editor_' + div_table_name + '_editar() :: ' + err.message;
+					show_modal_error(strMensaje);
+				}  
+			} );
 			
 			oReferenciasGrid.DataTable().on('draw', function () {
 				$('[data-toggle="tooltip"]').tooltip(); 
 			});
 
-			$('#estatusref').on('change', function () {
+			/*$('#estatusref').on('change', function () {
 				var table = oReferenciasGrid.DataTable();
 				table.search('').ajax.reload(null, null);
-			})
+			})*/
 		} else {
 			bReloadPaging = ((bReloadPaging == null || bReloadPaging == undefined)? false: true);
 
@@ -386,6 +416,59 @@ function ajax_set_xls() {
 				}else{
 					show_load_config(false);
 					
+					show_modal_error(strSessionMessage);					
+					setTimeout(function () {window.location.replace('../logout.php');},4000);
+				}				
+			},
+			error: function(a,b){
+				show_load_config(false);
+				
+				var strMensaje = a.status+' [' + a.statusText + ']';
+				show_modal_error(strMensaje);
+			}
+		});
+    } catch (err) {
+		show_load_config(false);
+		
+		var strMensaje = 'ajax_set_xls() :: ' + err.message;
+		show_modal_error(strMensaje);
+    }    
+}
+
+/* ..:: Subimos el archivo de excel ::.. */
+function ajax_set_eliminar_referencia() {
+	try {	
+		var sObservaciones = $('#itxt_mdl_eliminar_observacion').val().trim();
+		if (sObservaciones == '') { show_modal_error('Debe agregar una observación!!!'); return false; }
+
+		/*************************************************************/
+
+		$.ajax({
+			type: "POST",
+			url: 'ajax/ordenes_b&g/ordenesB&GFunc.php',
+			data: {
+				'action': 'eliminar_referencia',
+				'sReferencia': __sReferencia,
+				'sObservaciones': sObservaciones
+			},
+			timeout: 30000,
+			
+			beforeSend: function (dataMessage) {
+				show_load_config(true, 'Eliminando referencia, espere un momento por favor... ');
+			},
+			success:  function (response) {
+				show_load_config(false);
+				
+				if (response != '500'){
+					var respuesta = JSON.parse(response);
+					if (respuesta.Codigo == '1'){
+						$('#modal_eliminar').modal('hide');
+						setTimeout(function () { show_modal_ok(respuesta.Mensaje); fcn_cargar_grid_entradas(); }, 750);
+					} else {
+						var strMensaje = respuesta.Mensaje + respuesta.Error;
+						show_modal_error(strMensaje);
+					}
+				} else {					
 					show_modal_error(strSessionMessage);					
 					setTimeout(function () {window.location.replace('../logout.php');},4000);
 				}				

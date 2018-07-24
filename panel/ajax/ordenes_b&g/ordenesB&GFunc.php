@@ -29,6 +29,10 @@ if($loggedIn == false){
 			case 'procesar_xls' : $respuesta = fcn_procesar_xls();
 				echo json_encode($respuesta);
 				break;
+
+			case 'eliminar_referencia' : $respuesta = fcn_eliminar_referencia();
+				echo json_encode($respuesta);
+				break;
 		}
 	}
 }
@@ -81,7 +85,7 @@ function fcn_table_entradas($estatusref){
 					 bodega.clasificaciones AS bodClasif ON bodClasif.noparte=bodEnt.noparte INNER JOIN
 					 bodega.procli AS bodProv ON bodProv.proveedor_id=bodClasif.proveedor_id INNER JOIN
 					 bodega.tblbod AS tblbod ON tblbod.bodReferencia=bodEnt.referencia
-				".($estatusref == 3 ? '' : ($estatusref == 1 ?  ' WHERE tblbod.bodfecha IS NULL' : ' WHERE tblbod.bodfecha IS NOT NULL'));
+				WHERE bodEnt.fecha_eliminado IS NULL ".(($estatusref == 3)? '' : (($estatusref == 1)? 'AND tblbod.bodfecha IS NULL' : 'AND tblbod.bodfecha IS NOT NULL'));
 
 	require('./../../ssp.class.php');
 	return	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns );
@@ -134,7 +138,7 @@ function fcn_procesar_xls(){
 						$flete = '0';
 					}
 					
-					if ($referencia == 'X') {
+					if (strtoupper($referencia) == 'X') {
 						if (is_null($po) && is_null($noparte)) {
 							break;
 						}
@@ -211,7 +215,7 @@ function fcn_procesar_xls(){
 											,'".$fecha_registro_access."'
 											,'".$oRow['fecha_entrega_access']."');";
 							
-							$bResult = fcn_set_insupd_referencia($consulta, 'INSERT');				
+							$bResult = fcn_set_insupd_referencia($consulta, 'INSERT', 'bodega');				
 							if ($bResult === true) {
 								mysqli_query($cmysqli, "BEGIN");
 								
@@ -340,7 +344,7 @@ function fcn_procesar_xls(){
 										 WHERE bodnopedido='".$oRow['po']."' AND
 										       bodReferencia='".$oRow['referencia']."';";
 							
-							$bResult = fcn_set_insupd_referencia($consulta, 'UPDATE');				
+							$bResult = fcn_set_insupd_referencia($consulta, 'UPDATE', 'bodega');				
 							if ($bResult === true) {
 								mysqli_query($cmysqli, "BEGIN");
 								
@@ -433,6 +437,105 @@ function fcn_procesar_xls(){
 			}
 			
 			$respuesta['aData'] = $aData;
+		} else {
+			$respuesta['Codigo']=-1;
+			$respuesta['Mensaje']='No se recibieron datos';
+			$respuesta['Error'] = '';
+		}	
+	} catch(Exception $e) {
+		$respuesta['Codigo']=-1;
+		$respuesta['Mensaje']=''; 
+		$respuesta['Error'] = ' ['.$e->getMessage().']';
+	}
+	return $respuesta;
+}
+
+function fcn_eliminar_referencia(){
+	global $_POST, $bDebug, $cmysqli, $id;
+	
+	$respuesta['Codigo']=1;
+	try {
+		if (isset($_POST['sReferencia']) && !empty($_POST['sReferencia'])) {
+			$sReferencia = $_POST['sReferencia'];
+			$sObservaciones = $_POST['sObservaciones'];
+
+			/********************************************************/
+			fcn_es_virtual($sReferencia);
+
+			if ($respuesta['Codigo'] == 1) {
+				$consulta = "DELETE FROM tblbod WHERE bodReferencia = '".$sReferencia."'";
+				$bResult = fcn_set_insupd_referencia($consulta, 'UPDATE', 'bodega');
+				if ($bResult === false) {
+					$respuesta['Codigo']=-1;
+					$respuesta['Mensaje']=$bResult;
+					$respuesta['Error'] = '';
+				}
+			}
+
+			if ($respuesta['Codigo'] == 1) {
+				$consulta = "DELETE FROM revision_general WHERE referencia = '".$sReferencia."'";
+				$bResult = fcn_set_insupd_referencia($consulta, 'UPDATE', 'revisiones');
+				if ($bResult === false) {
+					$respuesta['Codigo']=-1;
+					$respuesta['Mensaje']=$bResult;
+					$respuesta['Error'] = '';
+				}
+			}
+
+			if ($respuesta['Codigo'] == 1) {
+				$consulta = "DELETE FROM detalle WHERE referencia = '".$sReferencia."'";
+				$bResult = fcn_set_insupd_referencia($consulta, 'UPDATE', 'revisiones');
+				if ($bResult === false) {
+					$respuesta['Codigo']=-1;
+					$respuesta['Mensaje']=$bResult;
+					$respuesta['Error'] = '';
+				}
+			}
+
+			if ($respuesta['Codigo'] == 1) {
+				mysqli_query($cmysqli, "BEGIN");
+
+				$consulta = "DELETE FROM bodegareplica.tblbod WHERE bodReferencia = '".$sReferencia."'";			
+				$query = mysqli_query($cmysqli, $consulta);
+				if (!$query) {
+					$error=mysqli_error($cmysqli);
+					$respuesta['Codigo']=-1;
+					$respuesta['Mensaje']='Error al eliminar registro en bodegareplica.tblbod. Por favor contacte al administrador del sistema.'.$consulta; 
+					$respuesta['Error'] = ' ['.$error.']';
+				} else {
+					$consulta = str_replace("bodegareplica.tblbod","bodega.tblbod", $consulta);
+					$query = mysqli_query($cmysqli, $consulta);
+					if (!$query) {
+						$error=mysqli_error($cmysqli);
+						$respuesta['Codigo']=-1;
+						$respuesta['Mensaje']='Error al eliminar registro en bodega.tblbod. Por favor contacte al administrador del sistema.'.$consulta; 
+						$respuesta['Error'] = ' ['.$error.']';
+					}
+				}
+
+				if ($respuesta['Codigo'] == 1) { 
+					$consulta = "UPDATE bodega.`ordenes_b&g`
+								 SET fecha_eliminado=NOW(),
+									 observaciones='".$sObservaciones."',
+									 usuario_elimino=".$id."
+								 WHERE referencia='".$sReferencia."'";
+
+					$query = mysqli_query($cmysqli, $consulta);
+					if (!$query) {
+						$error=mysqli_error($cmysqli);
+						$respuesta['Codigo']=-1;
+						$respuesta['Mensaje']='Error al actualizar fecha eliminado en ordenesBG. Por favor contacte al administrador del sistema.'.$consulta; 
+						$respuesta['Error'] = ' ['.$error.']';
+					}
+				}
+				
+				if ($respuesta['Codigo'] == 1) { 
+					mysqli_query($cmysqli, "COMMIT");
+					$respuesta['Mensaje']='Referencia <strong>'.$sReferencia.'</strong> eliminada correctamente';
+				} else {
+					mysqli_query($cmysqli, "ROLLBACK");
+				}
+			}
 		} else {
 			$respuesta['Codigo']=-1;
 			$respuesta['Mensaje']='No se recibieron datos';
@@ -538,6 +641,50 @@ function fcn_existe_po($sPO, &$bodReferencia) {
 	}
 }
 
+function fcn_es_virtual($bodReferencia) {
+	global $bDebug, $cmysqli, $URL_ws_webtools;
+	
+	$consulta_mdb = "SELECT bodReferencia, bodnopedido, PORLLEGAR
+					 FROM tblbod
+					 WHERE bodReferencia='".$bodReferencia."'";
+
+	$client = new nusoap_client($URL_ws_webtools."/webtools".(($bDebug)? "pruebas" : "")."/ws_mdb/ws_mdb.php?wsdl","wsdl");
+	$err = $client->getError();
+	if ($err) {
+		throw new Exception("Error al consultar información de bodega. Por favor contacte al administrador del sistema.");
+	}
+
+	$param = array(
+		'usuario' => 'admin',
+		'password' => 'r0117c',
+		'consulta' => $consulta_mdb,
+		'tipo' => 'SELECT',
+		'bd' => 'bodega');
+	
+	$result = $client->call('ws_mdb', $param);
+	$err = $client->getError();
+	if ($err) {
+		throw new Exception("Error al consultar información de bodega. Por favor contacte al administrador del sistema.". $err);
+	}
+
+	if($result['Codigo']==1){
+		$bodegadet=json_decode($result['Adicional1']);
+		if (count($bodegadet) > 0) {
+			foreach($bodegadet as $row_bod){
+				$PORLLEGAR = $row_bod->PORLLEGAR;
+				$sPO = $row_bod->bodnopedido;
+
+				if ($PORLLEGAR == 0 || $PORLLEGAR == false) {
+					throw new Exception("El PO <strong>".$sPO."</strong> con referencia <strong>".$bodReferencia."</strong> no es virtual.");
+				}
+				break;
+			}
+		} else {
+			throw new Exception("No existe información de la referencia <strong>".$bodReferencia."</strong> en bodega.");
+		}
+	}
+}
+
 function fcn_get_bod_id_access($sReferencia) {
 	global $bDebug, $cmysqli, $URL_ws_webtools;
 	
@@ -603,7 +750,7 @@ function fcn_get_consecutivo() {
 	}
 }
 
-function fcn_set_insupd_referencia($consulta_mdb, $tipo) {
+function fcn_set_insupd_referencia($consulta_mdb, $tipo, $bd) {
 	global $bDebug, $cmysqli, $URL_ws_webtools;
 
 	$client = new nusoap_client($URL_ws_webtools."/webtools".(($bDebug)? "pruebas" : "")."/ws_mdb/ws_mdb.php?wsdl","wsdl");
@@ -617,7 +764,7 @@ function fcn_set_insupd_referencia($consulta_mdb, $tipo) {
 		'password' => 'r0117c',
 		'consulta' => $consulta_mdb,
 		'tipo' => $tipo,
-		'bd' => 'bodega');
+		'bd' => $bd);
 	
 	$result = $client->call('ws_mdb', $param);
 	$err = $client->getError();
