@@ -80,11 +80,12 @@ include_once "./../checklogin.php";
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reportes <span class="caret"></span></a>
 					<ul class="dropdown-menu">
-					<li <?php if (stripos($_SERVER['REQUEST_URI'],'rpt_tmxop.php') !== false) {echo 'class="active"';} ?> ><a href="rpt_tmxop.php">Telmex Operación</a></li>
-					<li <?php if (stripos($_SERVER['REQUEST_URI'],'rpt_plantilla_avanzada') !== false) {echo 'class="active"';} ?> ><a href="rpt_plantilla_avanzada.php">Plantilla General Avanzada 5</a></li>
-					<li <?php if (stripos($_SERVER['REQUEST_URI'],'facmexame') !== false) {echo 'class="active"';} ?> ><a href="facmexame.php">Facturacion Mexicana y Americana con facturas de pedimento</a></li>
-					<li <?php if (stripos($_SERVER['REQUEST_URI'],'facame.php') !== false) {echo 'class="active"';} ?> ><a href="facame.php">Consulta de cuentas americanas por pedimento</a></li>
-					<li <?php if (stripos($_SERVER['REQUEST_URI'],'rpt_incrementablesxpedime.php') !== false) {echo 'class="active"';} ?> ><a href="rpt_incrementablesxpedime.php">Reporte Incrementables Por Pedimento</a></li>
+						<li <?php if (stripos($_SERVER['REQUEST_URI'],'rpt_tmxop.php') !== false) {echo 'class="active"';} ?> ><a href="rpt_tmxop.php">Telmex Operación</a></li>
+						<li <?php if (stripos($_SERVER['REQUEST_URI'],'rpt_plantilla_avanzada') !== false) {echo 'class="active"';} ?> ><a href="rpt_plantilla_avanzada.php">Plantilla General Avanzada 5</a></li>
+						<li <?php if (stripos($_SERVER['REQUEST_URI'],'facmexame') !== false) {echo 'class="active"';} ?> ><a href="facmexame.php">Facturacion Mexicana y Americana con facturas de pedimento</a></li>
+						<li <?php if (stripos($_SERVER['REQUEST_URI'],'facame.php') !== false) {echo 'class="active"';} ?> ><a href="facame.php">Consulta de cuentas americanas por pedimento</a></li>
+						<li <?php if (stripos($_SERVER['REQUEST_URI'],'rpt_incrementablesxpedime.php') !== false) {echo 'class="active"';} ?> ><a href="rpt_incrementablesxpedime.php">Reporte Incrementables Por Pedimento</a></li>
+						<li <?php if (stripos($_SERVER['REQUEST_URI'],'rpt_covescontenedores.php') !== false) {echo 'class="active"';} ?> ><a href="rpt_covescontenedores.php">Reporte Coves y Contenedores</a></li>
 					</ul>
 				</li>
 				
