@@ -30,11 +30,11 @@ if(isset($_SESSION['id'])){
 	$usuemail = $_SESSION['usuemail'];
 	//$clienteinv = $_SESSION['clienteinv'];
 	if($uniqid == sha1($id)){
-		include('connect_gabsql1.php');
+		include('connect_dbsql.php');
 		$queryl="SELECT `Usuario_id` FROM `tblusua` WHERE `Usuario_id` = '$id' AND `usuEmail` = '$usuemail' LIMIT 1";
-		$loginCheck = mysqli_query($cmysqli_gab1,$queryl) or die(mysql_error());
+		$loginCheck = mysqli_query($cmysqli,$queryl) or die(mysql_error());
 		$numberLog = mysqli_num_rows($loginCheck);
-		mysqli_close($cmysqli_gab1);
+		mysqli_close($cmysqli);
 		if($numberLog == 1){
 			$loggedIn = true;	
 		} else {

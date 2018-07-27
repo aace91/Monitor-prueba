@@ -7,7 +7,7 @@ if($loggedIn === true){
 $error = "";
 if(empty($_POST) == false){
 	
-	include('connect_gabsql1.php');
+	include('connect_dbsql.php');
 	
 	$username = trim($_POST['username']);
 	$password = trim($_POST['password']);
@@ -21,7 +21,7 @@ if(empty($_POST) == false){
 	$pass = $password;
 	
 	$consulta="SELECT * FROM `tblusua` WHERE usuemail = '$username' && usupasswd = '$pass' LIMIT 1";
-	$query = mysqli_query($cmysqli_gab1, $consulta);
+	$query = mysqli_query($cmysqli, $consulta);
 	$number = mysqli_num_rows($query);
 	
 	if($number == 1){
@@ -32,7 +32,7 @@ if(empty($_POST) == false){
 			$uniqid = sha1($row['Usuario_id']);
 			$usunivel = $row['usunivel'];
 		}
-		mysqli_close($cmysqli_gab1);
+		mysqli_close($cmysqli);
 		$_SESSION['id'] = $id;
 		$_SESSION['username'] = $username2;
 		$_SESSION['uid'] = $uniqid;
