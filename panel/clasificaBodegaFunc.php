@@ -691,11 +691,11 @@ function fcn_generar_ficha_clasificacion(){
 					$options
 				)->execute(); //Reemplazar execute por output para obtener linea de comando en caso de querer hacer debug 
 			}catch (Exception $e) {
-				echo  $e->getMessage(), "\n";
+				exit($e->getMessage());
 			}
 
 			if (headers_sent()) {
-				echo 'HTTP header already sent';
+				exit('HTTP header already sent');
 			} else {
 				header($_SERVER['SERVER_PROTOCOL'].' 200 OK');
 				header("Content-Type: application/pdf");
@@ -714,7 +714,7 @@ function fcn_generar_ficha_clasificacion(){
 		}	
 	} catch(Exception $e) {
 		$respuesta['Codigo']=-1;
-		$respuesta['Mensaje']='Error fcn_consultar_documentos().'; 
+		$respuesta['Mensaje']='Error fcn_generar_ficha_clasificacion().'; 
 		$respuesta['Error'] = ' ['.$e->getMessage().']';
 	}
 	return $respuesta;
