@@ -21,19 +21,21 @@ include('./../../../bower_components/PHPExcel/Classes/PHPExcel/IOFactory.php');
 										<th>FRACCI&Oacute;N_10 (Num&eacute;rico 10)</th>
 										<th>DESCRIPCI&Oacute;N (Alfanum&eacute;rico 200)</th>
 										<th>UNIDAD_MEDIDA (Alfanum&eacute;rico 20)</th>
+										<th>FUNDAMENTO_LEGAL (Alfanum&eacute;rico 500)</th>
 									</tr>
 								</thead>';
 			$Clasificaciones = array();
 			for ($row=2; $row <= $highestRow; $row++){
 				
 				$errNumParte = false;$errFraccion = false;$errFraccion10 = false;
-				$errDescripcion = false;$errUM = false;
+				$errDescripcion = false;$errUM = false; $errFundamento = false;
 				
 				$NUM_PARTE = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
 				$FRACCION = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
 				$FRACCION10 = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
 				$DESCRIPCION = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
-				$UM = $worksheet->getCellByColumnAndRow(4, $row)->getValue();			
+				$UM = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
+				$FUNDAMENTO = $worksheet->getCellByColumnAndRow(5, $row)->getValue();	
 				//Numero Parte
 				if (!isset($NUM_PARTE) || empty($NUM_PARTE)) {
 					$errNumParte = true;$respuesta['Codigo'] = '2';
@@ -62,8 +64,11 @@ include('./../../../bower_components/PHPExcel/Classes/PHPExcel/IOFactory.php');
 						$errUM = true;$respuesta['Codigo'] = '2';
 					}
 				}
+				//Fundamento Legal
+				if (strlen(trim($FUNDAMENTO)) > 500){$errFundamento = true;$respuesta['Codigo'] = '2';}
+
 				if($respuesta['Codigo'] == '1'){
-					$RowCaja = array($NUM_PARTE,$FRACCION,$FRACCION10,$DESCRIPCION,$UM);
+					$RowCaja = array($NUM_PARTE,$FRACCION,$FRACCION10,$DESCRIPCION,$UM, $FUNDAMENTO);
 					array_push($Clasificaciones,$RowCaja);
 					$_SESSION['aClasificaciones'] = $Clasificaciones;
 				}else{
@@ -75,6 +80,7 @@ include('./../../../bower_components/PHPExcel/Classes/PHPExcel/IOFactory.php');
 				$respuesta['HTML'] .= '<td '.($errFraccion10?'class="alert alert-danger"':'').'>'.$FRACCION10.'</td>';
 				$respuesta['HTML'] .= '<td '.($errDescripcion?'class="alert alert-danger"':'').'>'.$DESCRIPCION.'</td>';
 				$respuesta['HTML'] .= '<td '.($errUM?'class="alert alert-danger"':'').'>'.$UM.'</td>';
+				$respuesta['HTML'] .= '<td '.($errFundamento?'class="alert alert-danger"':'').'>'.$FUNDAMENTO.'</td>';
 				$respuesta['HTML'] .= "</tr>";
 			}
 			break;

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rptFichaClasificacion" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="897f454f-4415-4510-a4f9-bb6c2fd5cf43">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MySqlBodega"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="424"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="565"/>
+	<parameter name="idClasificacion" class="java.lang.String">
+		<parameterDescription><![CDATA[id de la clasificacion]]></parameterDescription>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT bodClas.noparte,
+              bodClas.descripcion,
+              bodClas.descripcion_ing,
+              bodCli.Nom AS cliente,
+              procli.proNom AS proveedor,
+              bodClas.fundamento_legal,
+              bodClas.fraccion,
+              GROUP_CONCAT(bodClasCat.descripcion SEPARATOR ', ') AS RYRNAS,
+              IF(bodClasDocs.nombre IS NULL, '', CONCAT('https://www.delbravoweb.com/archivos/monitor/clasificaBodega/', bodClas.id, '/', bodClasDocs.nombre)) AS imagen
+FROM bodega.clasificaciones AS bodClas INNER JOIN
+            bodega.clientes AS bodCli ON bodCli.Cliente_id=bodClas.cliente_id INNER JOIN
+            bodega.procli ON procli.proveedor_id=bodClas.proveedor_id LEFT JOIN 
+            bodega.clasificaciones_restricciones AS bodClasRest ON bodClasRest.id_clasificacion=bodClas.id INNER JOIN
+            bodega.clasificaciones_catalogo AS bodClasCat ON bodClasCat.id=bodClasRest.id_restriccion LEFT JOIN
+            bodega.clasificaciones_docs AS bodClasDocs ON bodClasDocs.id_clasificacion=bodClas.id AND
+                                                                                                    bodClasDocs.principal=1
+WHERE bodClas.id = $P{idClasificacion}
+GROUP BY bodClas.id]]>
+	</queryString>
+	<field name="noparte" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="noparte"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="clasificaciones"/>
+	</field>
+	<field name="descripcion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="descripcion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="clasificaciones"/>
+	</field>
+	<field name="descripcion_ing" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="descripcion_ing"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="clasificaciones"/>
+	</field>
+	<field name="cliente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="cliente"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="clientes"/>
+	</field>
+	<field name="proveedor" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="proveedor"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="procli"/>
+	</field>
+	<field name="fundamento_legal" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="fundamento_legal"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="clasificaciones"/>
+	</field>
+	<field name="fraccion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="fraccion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="clasificaciones"/>
+	</field>
+	<field name="RYRNAS" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="RYRNAS"/>
+	</field>
+	<field name="imagen" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="imagen"/>
+	</field>
+	<variable name="sImage" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="57" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="57" backcolor="#0054A4" uuid="aaf75d71-26af-4ff7-bc02-625d95b7e768"/>
+				<staticText>
+					<reportElement x="60" y="13" width="484" height="30" forecolor="#FFFFFF" uuid="cb7b5ef9-7b57-4dd4-a0d6-ad26b27bf478"/>
+					<textElement>
+						<font size="23" isBold="true"/>
+					</textElement>
+					<text><![CDATA[FICHA DE CLASIFICACION ARANCELARIA]]></text>
+				</staticText>
+				<image>
+					<reportElement mode="Opaque" x="0" y="0" width="59" height="57" backcolor="#FFFFFF" uuid="43eeb4fb-509e-4c6e-9d5a-8e64edf0a90b"/>
+					<imageExpression><![CDATA["http://www.delbravo.com/en/wp-content/uploads/2015/11/delbravo-logo-e1503331960937.png"]]></imageExpression>
+				</image>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="686" splitType="Stretch">
+			<rectangle>
+				<reportElement x="278" y="570" width="277" height="110" uuid="f3456295-150e-4f39-a389-e285682bd3e6"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="0" width="100" height="20" backcolor="#D9D9D9" uuid="8e73d254-217c-4623-a559-fac331bd44e3"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="100" y="0" width="178" height="20" backcolor="#D9D9D9" uuid="4ff3d4dd-f28d-420f-83ee-06121dbdc921"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="278" y="0" width="177" height="20" backcolor="#D9D9D9" uuid="b5615ecf-9f8a-4fb6-b874-b0ca70e61afa"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="0" y="0" width="100" height="20" uuid="cdaf95bf-a2d4-4ad0-b33a-7fb443a716dd"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[No. de Parte]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="102" y="0" width="88" height="20" uuid="c33e0f7b-5a69-4337-9ba8-082efaa4d086"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[Cliente]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="0" width="98" height="20" uuid="c2c05ea1-13ef-41d2-8f9c-d2092f6f7185"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[Proveedor]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="0" y="20" width="100" height="31" uuid="d0c5cadc-2cd9-4283-afd4-722130277eab"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="100" y="20" width="178" height="31" uuid="0bc718ee-c691-4fc2-8573-94374d9ed122"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="278" y="20" width="177" height="31" uuid="f745c6b5-73e7-4a72-aeaa-69053d273ecc"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="455" y="20" width="100" height="31" uuid="95c25e4a-8402-4b6f-9bb9-d53e3d2ff36c"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="50" width="555" height="20" backcolor="#D9D9D9" uuid="548ed7b1-9973-431c-ad64-eefa2c1cc822"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="0" y="50" width="278" height="20" uuid="5a0e97ae-9c07-4655-b919-690b47632dcb"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[ Descripción comercial de la mercancía]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="0" y="70" width="555" height="48" uuid="c5c3d1e2-bf8e-467a-92af-c80eeca98e9a"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="118" width="278" height="20" backcolor="#D9D9D9" uuid="8d56c95a-3f2a-4ddf-bd20-c04ae5e47858"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="278" y="118" width="277" height="20" backcolor="#D9D9D9" uuid="46ff5a8c-b91e-4e3b-bd9d-a3dbedb55b52"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="2" y="118" width="138" height="20" uuid="f3fe07d6-64a0-40a3-92da-11a76837dcf8"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[ Análisis merceológico]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="118" width="174" height="20" uuid="5acca7c7-6a2c-4558-a1de-26e1e3d4e55e"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[ Imagen preferencial]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="0" y="138" width="278" height="542" uuid="80a64517-9fd9-440f-a88e-d0df459280d1"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="278" y="410" width="277" height="20" backcolor="#D9D9D9" uuid="e356a552-0468-4e5f-bebc-f52ff5bd52aa"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="278" y="480" width="277" height="20" backcolor="#D9D9D9" uuid="750d3802-b52e-46da-9097-d024788faa86"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="278" y="138" width="277" height="272" uuid="f7621c58-63a3-42a2-b87f-ce18599e43c8"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="280" y="480" width="220" height="20" uuid="da9ea9c6-8d81-4a4d-b4bd-55fde4679a37"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[Fracción Arancelaria]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="410" width="220" height="20" uuid="0665b1d4-b853-4b00-bebe-b3681414a04b"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[Descripción]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="278" y="500" width="277" height="50" uuid="051048d4-03a9-4146-964d-20de4c6f0624"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="278" y="430" width="277" height="50" uuid="49d263a3-1de2-440b-b0f7-37166fbabb0d"/>
+			</rectangle>
+			<rectangle>
+				<reportElement mode="Opaque" x="278" y="550" width="277" height="20" backcolor="#D9D9D9" uuid="847d4e7c-3d9b-4d3d-aef4-d89430426b2e"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="280" y="550" width="158" height="20" uuid="2cf3c6a1-20fa-4ec6-ab02-2e0119af0f3a"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[RYRNA'S]]></text>
+			</staticText>
+			<image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
+				<reportElement x="280" y="140" width="273" height="268" uuid="263b28d8-f0ea-4c95-970c-8b3b6c813425"/>
+				<imageExpression><![CDATA[$F{imagen}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="20" width="96" height="30" uuid="bd84dcad-a604-48f1-9620-673d5e69a3c2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{noparte}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="280" y="570" width="273" height="109" uuid="2fd682fb-b4c4-49ec-bbb9-ca0453675119"/>
+				<textFieldExpression><![CDATA[$F{RYRNAS}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="102" y="20" width="174" height="30" uuid="9ecd7216-85fe-4657-83fc-0b51ac8d28df"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="280" y="20" width="173" height="30" uuid="41c66103-5ff8-4280-96a1-5ee9207008b3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{proveedor}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="70" width="551" height="48" uuid="6ba5d313-1dbe-488f-9701-22035431a8ea"/>
+				<textFieldExpression><![CDATA[$F{descripcion_ing}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="138" width="274" height="541" uuid="8a3303b8-2522-4596-98e9-034825214f80"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fundamento_legal}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="280" y="500" width="273" height="50" uuid="dd5c4669-c886-45ca-bc91-bf56f723640d"/>
+				<textFieldExpression><![CDATA[$F{fraccion}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="280" y="430" width="273" height="50" uuid="069acb99-ce27-4d9a-98d6-eb000fdc5359"/>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<textField pattern="M/d/yyyy">
+				<reportElement x="457" y="20" width="96" height="30" uuid="b6d4bdc8-8276-4e4a-9111-7328462418de"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement mode="Opaque" x="455" y="0" width="100" height="20" backcolor="#D9D9D9" uuid="f2cefc97-4c01-4b0d-a807-01bf2b289cc2"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="457" y="0" width="96" height="20" uuid="9c17e4ef-d7cc-4fb8-bd3d-3d71fb67d423"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<text><![CDATA[Fecha]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

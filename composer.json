@@ -1,5 +1,6 @@
 {
     "require": {
-        "smalot/pdfparser": "^0.11.0"
+        "smalot/pdfparser": "^0.11.0",
+        "geekcom/phpjasper": "^2.7"
     }
 }

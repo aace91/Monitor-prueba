@@ -12,6 +12,7 @@
 	$URL_archivos_pedimentos="https://www.delbravoweb.com/pedimentos/";
 	$dir_rpt_relacion_servicios="\\\\192.168.1.234\\WebSites\\monitor\\panel\\";
 	$dir_archivos_web = "\\\\192.168.1.126\\archivos_web\\";
+	$URL_archivos_web = "http://www.delbravoweb.com/archivos/";
 	$dir_server_web = "\\\\192.168.1.126\\";
 	$dir_archivos_gabdata = "\\\\192.168.1.107\\gabdata\\";
 	$dir_archivos_cfd = "\\\\192.168.1.126\\cfd\\";

@@ -49,25 +49,25 @@ Editor::inst( $db, 'clasificaciones' )
                 return $out;
             } )
 			->setFormatter(function ( $val, $data, $opts ) {
-				if ($val==''){
-					return null;
-				}
-				return $val;
+				return (($val=='')? null : $val);
 			}),
 		Field::inst( 'clasificaciones.fraccion' )
 			->setFormatter(function ( $val, $data, $opts ) {
-				if ($val==''){
-					return null;
-				}
-				return strtoupper($val);
+				return (($val=='')? null : strtoupper($val));
 			})
 			->validator( 'Validate::required' ),
+		Field::inst( 'clasificaciones.fraccion2' )
+			->setFormatter(function ( $val, $data, $opts ) {
+				return (($val=='')? null : strtoupper($val));
+			}),
 		Field::inst( 'clasificaciones.descripcion' )
 			->setFormatter(function ( $val, $data, $opts ) {
-				if ($val==''){
-					return null;
-				}
-				return strtoupper($val);
+				return (($val=='')? null : strtoupper($val));
+			})
+			->validator( 'Validate::required' ),
+		Field::inst( 'clasificaciones.descripcion_ing' )
+			->setFormatter(function ( $val, $data, $opts ) {
+				return (($val=='')? null : strtoupper($val));
 			})
 			->validator( 'Validate::required' ),
 		Field::inst( 'clasificaciones.medida' )
@@ -86,12 +86,17 @@ Editor::inst( $db, 'clasificaciones' )
 				return date( 'd/m/Y', strtotime( $val ) );
 			}),
 		Field::inst( 'clasificaciones.clasificado' ),
+		Field::inst( 'clasificaciones.material' )
+			->setFormatter(function ( $val, $data, $opts ) {
+				return (($val=='')? null : strtoupper($val));
+			}),
+		Field::inst( 'clasificaciones.fundamento_legal' )
+			->setFormatter(function ( $val, $data, $opts ) {
+				return (($val=='')? null : strtoupper($val));
+			}),
 		Field::inst( 'clasificaciones.fraccionR8va' )
 			->setFormatter(function ( $val, $data, $opts ) {
-				if ($val==''){
-					return null;
-				}
-				return strtoupper($val);
+				return (($val=='')? null : strtoupper($val));
 			}),
 		Field::inst( 'clientes.Nom' ),
 		Field::inst( 'procli.proNom' ),
@@ -101,13 +106,13 @@ Editor::inst( $db, 'clasificaciones' )
 	->pkey('clasificaciones.id')
 	->on( 'preCreate', function ( $editor, $values ) {
 		global $username,$ip_out2,$port_out2;
+
 		include("../connect_dbsql.php");
 		include("../bower_components/nusoap/src/nusoap.php");
+		
 		$clasificaciones=$values['clasificaciones'];
-		$consultaa="
-			SELECT max(id) as id_clasificacion
-			FROM clasificaciones
-		";
+
+		$consultaa = "SELECT max(id) as id_clasificacion FROM clasificaciones";
 		$client = new nusoap_client("http://$ip_out2:$port_out2/webtools/ws_mdb/ws_mdb.php?wsdl","wsdl");
 		$err = $client->getError();
 		if ($err) {
@@ -149,12 +154,15 @@ Editor::inst( $db, 'clasificaciones' )
             ->setValue($username);
 		$editor
             ->field( 'clasificaciones.clasificado' )
-            ->setValue('X');
+			->setValue('X');
+			
 		$id_clasificacion=$id_new;
 		$noparte=strtoupper($clasificaciones['noparte']); 
 		$origen=$clasificaciones['origen'];
 		$fraccion=strtoupper($clasificaciones['fraccion']);
+		$fraccion2=strtoupper($clasificaciones['fraccion2']);
 		$descripcion=strtoupper($clasificaciones['descripcion']);
+		$descripcion_ing=strtoupper($clasificaciones['descripcion_ing']);
 		$medida=$clasificaciones['medida'];
 		$proveedor_id=$clasificaciones['proveedor_id'];
 		$cliente_id=$clasificaciones['cliente_id'];
@@ -164,6 +172,9 @@ Editor::inst( $db, 'clasificaciones' )
 		$hora=$fechan->format("g:i:s A");
 		$clasificado='X';
 		$fraccionR8va=($clasificaciones['fraccionR8va']=='' ? "'".strtoupper($clasificaciones['fraccionR8va'])."'" : 'NULL');
+		$material=strtoupper($clasificaciones['material']);
+		$fundamento_legal=strtoupper($clasificaciones['fundamento_legal']);
+
 		if ($id_clasificacion==''){
 			$error_msg="El ID no se genero de manera correcta";
 			exit(json_encode(array("error" => $error_msg)));
@@ -191,6 +202,9 @@ Editor::inst( $db, 'clasificaciones' )
 			$respuesta=array("fieldErrors"=>$errores,"data"=>array());
 			exit(json_encode($respuesta));
 		}
+		
+		/*****************************************************/
+
 		$consultaa="
 			INSERT INTO clasificaciones
 			(
@@ -198,7 +212,9 @@ Editor::inst( $db, 'clasificaciones' )
 				noparte,
 				origen,
 				fraccion,
+				fraccion2,
 				descripcion,
+				descripcion_ing,
 				proveedor_id,
 				cliente_id,
 				medida,
@@ -206,7 +222,9 @@ Editor::inst( $db, 'clasificaciones' )
 				fecha,
 				hora,
 				clasificado,
-				fraccionR8va
+				fraccionR8va,
+				material,
+				fundamento_legal
 			)
 			
 			VALUES 
@@ -215,7 +233,9 @@ Editor::inst( $db, 'clasificaciones' )
 				'$noparte',
 				'$origen',
 				'$fraccion',
+				'$fraccion2',
 				'$descripcion',
+				'$descripcion_ing',
 				$proveedor_id,
 				$cliente_id,
 				'$medida',
@@ -223,7 +243,9 @@ Editor::inst( $db, 'clasificaciones' )
 				$fecha,
 				'$hora',
 				'$clasificado',
-				$fraccionR8va
+				$fraccionR8va,
+				'$material',
+				'$fundamento_legal'
 			)
 		";
 		$consultam="
@@ -233,7 +255,9 @@ Editor::inst( $db, 'clasificaciones' )
 				noparte,
 				origen,
 				fraccion,
+				fraccion2,
 				descripcion,
+				descripcion_ing,
 				proveedor_id,
 				cliente_id,
 				medida,
@@ -241,7 +265,9 @@ Editor::inst( $db, 'clasificaciones' )
 				fecha,
 				hora,
 				clasificado,
-				fraccionR8va
+				fraccionR8va,
+				material,
+				fundamento_legal
 			)
 			
 			VALUES 
@@ -250,7 +276,9 @@ Editor::inst( $db, 'clasificaciones' )
 				'$noparte',
 				'$origen',
 				'$fraccion',
+				'$fraccion2',
 				'$descripcion',
+				'$descripcion_ing',
 				$proveedor_id,
 				$cliente_id,
 				'$medida',
@@ -258,9 +286,14 @@ Editor::inst( $db, 'clasificaciones' )
 				'$fecham',
 				'$hora',
 				'$clasificado',
-				$fraccionR8va
+				$fraccionR8va,
+				'$material',
+				'$fundamento_legal'
 			)
 		";
+
+		/*****************************************************/
+
 		$client = new nusoap_client("http://$ip_out2:$port_out2/webtools/ws_mdb/ws_mdb.php?wsdl","wsdl");
 		$err = $client->getError();
 		if ($err) {
@@ -283,6 +316,9 @@ Editor::inst( $db, 'clasificaciones' )
 			$error_msg="Error del WS: ".$result['Mensaje'].". Consulta: ".$consultaa;
 			exit(json_encode(array("error" => $error_msg)));
 		}
+
+		/*****************************************************/
+
 		$query = mysqli_query($cmysqli,$consultam);
 		if (!$query) {
 			$error_msg='Error en la consulta: '.mysqli_error($cmysqli);
@@ -291,10 +327,13 @@ Editor::inst( $db, 'clasificaciones' )
 	})
 	->on( 'preEdit', function ( $editor, $id, $values ) {
 		global $username,$ip_out2,$port_out2;
+		
 		include("../bower_components/nusoap/src/nusoap.php");
 		include("../connect_dbsql.php");
+		
 		$clasificaciones=$values['clasificaciones'];
 		$fechan = new DateTime();
+
 		$editor
 			->field( 'clasificaciones.fecha' )
 			->setValue($fechan->format("Y-m-d"));
@@ -307,10 +346,13 @@ Editor::inst( $db, 'clasificaciones' )
 		$editor
 			->field( 'clasificaciones.clasificado' )
 			->setValue('X');
+
 		$id_clasificacion=$clasificaciones['id'];
 		$origen=$clasificaciones['origen'];
 		$fraccion=strtoupper($clasificaciones['fraccion']);
+		$fraccion2=strtoupper($clasificaciones['fraccion2']);
 		$descripcion=strtoupper($clasificaciones['descripcion']);
+		$descripcion_ing=strtoupper($clasificaciones['descripcion_ing']);
 		$medida=$clasificaciones['medida'];
 		$usuario=$username;
 		$fecha='#'.$fechan->format("Y-m-d").'#';
@@ -318,7 +360,10 @@ Editor::inst( $db, 'clasificaciones' )
 		$hora=$fechan->format("g:i:s A");
 		$clasificado='X';
 		$fraccionR8va=($clasificaciones['fraccionR8va']=='' ? "'".strtoupper($clasificaciones['fraccionR8va'])."'" : 'NULL');
+		$material=strtoupper($clasificaciones['material']);
+		$fundamento_legal=strtoupper($clasificaciones['fundamento_legal']);
 		$errores=array();
+
 		if ($fraccion==''){
 			array_push($errores,array("name"=>"clasificaciones.fraccion","status"=>"Este campo es requerido"));
 		}
@@ -329,43 +374,53 @@ Editor::inst( $db, 'clasificaciones' )
 			array_push($errores,array("name"=>"clasificaciones.medida","status"=>"Este campo es requerido"));
 		}
 		if(count($errores)>0){
-			//$errores=array(array("name"=>"clasificaciones.fraccion","status"=>"Este campo es requerido"));
 			$respuesta=array("fieldErrors"=>$errores,"data"=>array());
 			exit(json_encode($respuesta));
 		}
-		$consultaa="
-			UPDATE clasificaciones
-			SET fecha= $fecha,
-				hora= '$hora' ,
-				usuario= '$usuario' ,
-				origen= '$origen' ,
-				fraccion= '$fraccion' ,
-				descripcion= '$descripcion' ,
-				medida= '$medida',
-				clasificado='$clasificado',
-				fraccionR8va=$fraccionR8va
-			WHERE id=$id_clasificacion
-		";
-		$consultam="
-			UPDATE bodegareplica.clasificaciones
-			SET fecha= '$fecham',
-				hora= '$hora' ,
-				usuario= '$usuario' ,
-				origen= '$origen' ,
-				fraccion= '$fraccion' ,
-				descripcion= '$descripcion' ,
-				medida= '$medida',
-				clasificado='$clasificado',
-				fraccionR8va=$fraccionR8va
-			WHERE id=$id_clasificacion
-		";
+
+		/*****************************************************/
+
+		$consultaa = "UPDATE clasificaciones
+			          SET fecha= $fecha,
+				          hora= '$hora',
+				          usuario= '$usuario',
+				          origen= '$origen',
+				          fraccion= '$fraccion',
+						  fraccion2= '$fraccion2',
+				          descripcion= '$descripcion',
+						  descripcion_ing= '$descripcion_ing',
+				          medida= '$medida',
+				          clasificado='$clasificado',
+				          fraccionR8va=$fraccionR8va,
+						  material= '$material',
+						  fundamento_legal='". utf8_decode($fundamento_legal) ."'
+					  WHERE id=".$id_clasificacion;
+					  
+		$consultam = "UPDATE bodegareplica.clasificaciones
+			          SET fecha= '$fecham',
+				          hora= '$hora',
+				          usuario= '$usuario',
+				          origen= '$origen',
+				          fraccion= '$fraccion',
+				          fraccion2= '$fraccion2',
+				          descripcion= '$descripcion',
+				          descripcion_ing= '$descripcion_ing',
+				          medida= '$medida',
+				          clasificado='$clasificado',
+				          fraccionR8va=$fraccionR8va,
+				          material= '$material',
+				          fundamento_legal= '$fundamento_legal'
+					 WHERE id=".$id_clasificacion;
+		
+		/*****************************************************/
+
 		$client = new nusoap_client("http://$ip_out2:$port_out2/webtools/ws_mdb/ws_mdb.php?wsdl","wsdl");
 		$err = $client->getError();
 		if ($err) {
 			$error_msg="Constructor error:". $err ;
 			exit(json_encode(array("error" => $error_msg)));
 		}
-		//$client->debug();
+		
 		$param = array('usuario' => 'admin',
 		'password' => 'r0117c',
 		'consulta' => $consultaa,
@@ -381,6 +436,9 @@ Editor::inst( $db, 'clasificaciones' )
 			$error_msg="Error del WS: ".$result['Mensaje'].". Consulta: ".$consultaa;
 			exit(json_encode(array("error" => $error_msg)));
 		}
+
+		/*****************************************************/
+
 		$query = mysqli_query($cmysqli,$consultam);
 		if (!$query) {
 			$error_msg='Error en la consulta: '.mysqli_error($cmysqli);
@@ -396,5 +454,16 @@ Editor::inst( $db, 'clasificaciones' )
 	->leftJoin( 'clientes', 'clientes.cliente_id', '=', 'clasificaciones.cliente_id' )
 	->leftJoin( 'procli', 'procli.proveedor_id', '=', 'clasificaciones.proveedor_id' )
 	->leftJoin( 'refxclasifica', 'refxclasifica.idclasif', '=', 'clasificaciones.id' )
+	->join(
+		Mjoin::inst( 'clasificaciones_catalogo' )
+			->link( 'clasificaciones.id', 'clasificaciones_restricciones.id_clasificacion' )
+			->link( 'clasificaciones_catalogo.id', 'clasificaciones_restricciones.id_restriccion' )
+			->order( 'descripcion asc' )
+			->fields(
+				Field::inst( 'id' )
+					->options( 'clasificaciones_catalogo', 'id', 'descripcion' ),
+				Field::inst( 'descripcion' )
+			)
+	)
 	->process( $_POST )
 	->json();

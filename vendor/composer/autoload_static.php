@@ -6,6 +6,20 @@ namespace Composer\Autoload;
 
 class ComposerStaticInitc38d61517405fadf3cb74c134dc20351
 {
+    public static $prefixLengthsPsr4 = array (
+        'P' => 
+        array (
+            'PHPJasper\\' => 10,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'PHPJasper\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/geekcom/phpjasper/src',
+        ),
+    );
+
     public static $prefixesPsr0 = array (
         'S' => 
         array (
@@ -36,6 +50,8 @@ class ComposerStaticInitc38d61517405fadf3cb74c134dc20351
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInitc38d61517405fadf3cb74c134dc20351::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitc38d61517405fadf3cb74c134dc20351::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInitc38d61517405fadf3cb74c134dc20351::$prefixesPsr0;
             $loader->classMap = ComposerStaticInitc38d61517405fadf3cb74c134dc20351::$classMap;
 

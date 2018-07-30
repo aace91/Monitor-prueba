@@ -19,14 +19,13 @@ if ($loggedIn == false){
 				$FRACCION10 = $aClasificaciones[$i][2];
 				$DESCRIPCION = $aClasificaciones[$i][3];
 				$UM = $aClasificaciones[$i][4];
-				
-				//error_log('CLASIFICACION['.($i + 1).'] Numero_Parte:'.$NUM_PARTE.' Fraccion:'.$FRACCION.' Descripcion:'.$DESCRIPCION);
+				$FUNDAMENTO = $aClasificaciones[$i][5];
 				
 				$consulta = "SELECT id 
-								FROM clasificaciones
-								WHERE noparte='".$NUM_PARTE."' AND 
-										cliente_id=".$id_cliente." AND 
-										proveedor_id=".$id_proveedor;
+							 FROM clasificaciones
+							 WHERE noparte='".$NUM_PARTE."' AND 
+								   cliente_id=".$id_cliente." AND 
+								   proveedor_id=".$id_proveedor;
 										
 				$respuesta = web_service_query($consulta,'SELECT');
 				if($respuesta['Codigo'] != 1){break;}
@@ -38,9 +37,9 @@ if ($loggedIn == false){
 					$hora=$fechan->format("g:i:s A");
 					//INSERTAR ACCESS
 					$consultaa="INSERT INTO clasificaciones (noparte,origen,fraccion,fraccion2,descripcion,
-													proveedor_id,cliente_id,medida,usuario,fecha,hora,clasificado)
+											                 proveedor_id,cliente_id,medida,usuario,fecha,hora,clasificado, fundamento_legal)
 								VALUES ('$NUM_PARTE','','$FRACCION','$FRACCION10','$DESCRIPCION',$id_proveedor,
-										$id_cliente,'$UM','$username','$fecha','$hora','X')";
+										$id_cliente,'$UM','$username','$fecha','$hora','X', '".$FUNDAMENTO."')";
 								
 					$respuesta = web_service_query($consultaa,'INSERT');
 					if($respuesta['Codigo'] != 1){
@@ -73,14 +72,14 @@ if ($loggedIn == false){
 					}
 					//INSERTAR MY SQL
 					$consulta = "INSERT INTO clasificaciones (id,noparte,origen,fraccion,fraccion2,descripcion,proveedor_id,
-													cliente_id,medida,usuario,fecha,hora,clasificado) 
+													cliente_id,medida,usuario,fecha,hora,clasificado, fundamento_legal) 
 										VALUES (	'$consecutivo','$NUM_PARTE','','$FRACCION','$FRACCION10','$DESCRIPCION',
-													'$id_proveedor','$id_cliente','$UM','$username','$fecham','$hora','X')";
+													'$id_proveedor','$id_cliente','$UM','$username','$fecham','$hora','X','".$FUNDAMENTO."')";
 													
 					$consultam=" INSERT INTO bodegareplica.clasificaciones (id,noparte,origen,fraccion,fraccion2,descripcion,
-																	proveedor_id,cliente_id,medida,usuario,fecha,hora,clasificado)
+																	proveedor_id,cliente_id,medida,usuario,fecha,hora,fundamento_legal) 
 															VALUES ($consecutivo,'$NUM_PARTE','','$FRACCION','$FRACCION10','$DESCRIPCION',
-																$id_proveedor,$id_cliente,'$UM','$username','$fecham','$hora','X')";
+																$id_proveedor,$id_cliente,'$UM','$username','$fecham','$hora','X','".$FUNDAMENTO."')";
 					mysqli_query($cmysqli,"BEGIN");
 					//Replica
 					$query = mysqli_query($cmysqli,$consultam);
