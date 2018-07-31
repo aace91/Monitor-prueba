@@ -10,6 +10,9 @@
 * Habilitar extensiones de PHP (odbc, interbase, pdo_firebird, pdo_obdc, com_dotnet)
 * Configurar conexion ODBC 32 cnxpedimentos
 * Configurar conexion ODBC bodegamysql 
+<<<<<<< HEAD
 
 Prueba
 Prueba jc
+=======
+>>>>>>> c7c843bcc74798fbe460885401987406b1ef90da
