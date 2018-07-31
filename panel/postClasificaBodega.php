@@ -245,7 +245,7 @@ Editor::inst( $db, 'clasificaciones' )
 				'$clasificado',
 				$fraccionR8va,
 				'$material',
-				'$fundamento_legal'
+				'". utf8_decode($fundamento_legal) ."'
 			)
 		";
 		$consultam="
