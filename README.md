@@ -12,7 +12,5 @@
 * Configurar conexion ODBC bodegamysql 
 <<<<<<< HEAD
 
-Prueba
-Prueba jc
 =======
 >>>>>>> c7c843bcc74798fbe460885401987406b1ef90da
