@@ -12,3 +12,4 @@
 * Configurar conexion ODBC bodegamysql 
 
 Prueba
+Prueba jc
