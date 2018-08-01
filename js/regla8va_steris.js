@@ -1,5 +1,5 @@
 /* 
-* Copyright (c) 2018 DEL BRAVO. - all right reserved
+* Copyright (c) 2018 DEL BRAVO. - all right reserved ||
 */
 	var appName = 'Monitor :: Fracciones Regla 8va.';
 	var strSessionMessage = 'La sesión del usuario ha terminado, por favor acceda de nuevo.';
