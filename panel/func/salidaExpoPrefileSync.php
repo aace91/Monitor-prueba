@@ -116,7 +116,7 @@ if (!$query) {
 		if ($bEnviarEmail) {
 			$respuesta2 = fcn_enviar_notificacion_salida($salidanumero, true);
 			if ($respuesta2['Codigo'] != 1) { 
-				$respuesta['Mensaje'] .= ' :: No se envio la notificacion al cliente '.$respuesta2['Mensaje'];
+				$respuesta['Mensaje'] .= 'Salida: '.$salidanumero.' :: No se envio la notificacion al cliente '.$respuesta2['Mensaje'].' :: Error:'.$respuesta2['Error'];
 				enviamail('SALIDAEXPO: salidaExpoPrefileSync','SALIDAEXPO: '.json_encode($respuesta),array($__strEmailAlerta),array(),'mail.delbravo.com','25','salidasexpo@delbravo.com','salexp01','',array());
 			} 
 		}
