@@ -319,6 +319,10 @@ function fcn_cargar_grid_clasificaciones() {
 		
 		table =$('#dtclasificaciones').DataTable({
 			order: [[1, 'desc'],[2, 'desc']],
+			columnDefs: [
+				{ "searchable": false, "targets": [12, 13] },
+				{ "orderable": false, "targets": [12, 13] }
+			],
 			lengthMenu: [[10, 25, 50, 100, 1000, -1], [10, 25, 50, 100, 1000, "All"]],
 			processing: true,
 			serverSide: true,
@@ -351,7 +355,6 @@ function fcn_cargar_grid_clasificaciones() {
 						}
 					}
 				},
-
 				{ "data": "clasificaciones.material" },
 				{ "data": "clasificaciones.fundamento_legal" },
 				{ 

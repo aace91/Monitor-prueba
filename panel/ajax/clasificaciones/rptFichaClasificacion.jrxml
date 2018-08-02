@@ -21,7 +21,7 @@
 FROM bodega.clasificaciones AS bodClas INNER JOIN
             bodega.clientes AS bodCli ON bodCli.Cliente_id=bodClas.cliente_id INNER JOIN
             bodega.procli ON procli.proveedor_id=bodClas.proveedor_id LEFT JOIN 
-            bodega.clasificaciones_restricciones AS bodClasRest ON bodClasRest.id_clasificacion=bodClas.id INNER JOIN
+            bodega.clasificaciones_restricciones AS bodClasRest ON bodClasRest.id_clasificacion=bodClas.id LEFT JOIN
             bodega.clasificaciones_catalogo AS bodClasCat ON bodClasCat.id=bodClasRest.id_restriccion LEFT JOIN
             bodega.clasificaciones_docs AS bodClasDocs ON bodClasDocs.id_clasificacion=bodClas.id AND
                                                                                                     bodClasDocs.principal=1
