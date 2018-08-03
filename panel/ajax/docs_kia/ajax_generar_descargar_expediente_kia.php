@@ -166,7 +166,7 @@ if($loggedIn == false){
 			
 		}
 		//COVES
-		$resCOVEpdf = generar_archivos_pdf_cove($referencia);
+		$resCOVEpdf = generar_archivos_pdf_cove($referencia,'expediente');
 		if($resCOVEpdf['Codigo'] != 1){
 			$respuesta['Codigo']=-1;
 			$respuesta['Mensaje'] = $resCOVEpdf['Mensaje'];

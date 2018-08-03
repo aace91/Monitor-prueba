@@ -5,7 +5,7 @@ if ($loggedIn == false){
 	echo '500';
 } else{
 	//Parametros de entrada
-	$sFiltro = $_POST['sFiltro'];
+	//$sFiltro = $_POST['sFiltro'];
 	//Definicion de variables
     $sIndexColumn = "NUM_REFE";
     $sTable = "SAAIO_PEDIME";
