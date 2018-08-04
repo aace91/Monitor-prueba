@@ -106,6 +106,7 @@
 												$Factura = $node->getElementsByTagName("numeroFacturaOriginal")->item(0)->nodeValue;
 											}
 											if($aComprobantes[$c][2] == $Factura){
+												require('./../../../bower_components/TCPDF/tcpdf.php');
 												$pdf = new TCPDF('P', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);				
 												// set document information
 												$pdf->SetCreator(PDF_CREATOR);
