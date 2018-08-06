@@ -106,7 +106,8 @@
 												$Factura = $node->getElementsByTagName("numeroFacturaOriginal")->item(0)->nodeValue;
 											}
 											if($aComprobantes[$c][2] == $Factura){
-												require('./../../../bower_components/TCPDF/tcpdf.php');
+												//require('./../../../bower_components/TCPDF/tcpdf.php');
+												require_once('./../../formato_cove/TCPDF/tcpdf.php');
 												$pdf = new TCPDF('P', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);				
 												// set document information
 												$pdf->SetCreator(PDF_CREATOR);
@@ -323,6 +324,7 @@
 																foreach( $emisor->getElementsByTagName("domicilio") as $domicilio ){
 																	$Calle_emisor = $domicilio->getElementsByTagName("calle")->item(0)->nodeValue;
 																	$Dir_emisor = explode ("COL.",$Calle_emisor);
+																	$Colonia_emisor = '';
 																	if(count($Dir_emisor )>1){
 																		$Calle_emisor = trim($Dir_emisor[0]);
 																		$Colonia_emisor = trim($Dir_emisor[1]);
@@ -840,6 +842,7 @@
 															foreach( $emisor->getElementsByTagName("domicilio") as $domicilio ){
 																$Calle_emisor = $domicilio->getElementsByTagName("calle")->item(0)->nodeValue;
 																$Dir_emisor = explode ("COL.",$Calle_emisor);
+																$Colonia_emisor = '';
 																if(count($Dir_emisor )>1){
 																	$Calle_emisor = trim($Dir_emisor[0]);
 																	$Colonia_emisor = trim($Dir_emisor[1]);
@@ -1276,11 +1279,13 @@
 													}
 													if(!$bErrFile){
 														if($tipo_consulta == 'expediente'){
-															$pdf->Output('expediente_docs/'.$referencia.'/'.$aComprobantes[$c][1].'.pdf', 'F');
-															array_push($respuesta['aCOVES'],'expediente_docs/'.$referencia.'/'.$aComprobantes[$c][1].'.pdf');
+															$sFileName =  getcwd().'\\'.'expediente_docs\\'.$referencia.'\\'.$aComprobantes[$c][1].'.pdf';
+															$pdf->Output($sFileName, 'F');
+															array_push($respuesta['aCOVES'],$sFileName);
 														}else{
-															$pdf->Output($aComprobantes[$c][1].'.pdf', 'F');
-															array_push($respuesta['aCOVES'],$aComprobantes[$c][1].'.pdf');
+															$sFileName =  getcwd().'\\'.$aComprobantes[$c][1].'.pdf';
+															$pdf->Output($sFileName, 'F');
+															array_push($respuesta['aCOVES'],$sFileName);
 														}
 													}
 												}

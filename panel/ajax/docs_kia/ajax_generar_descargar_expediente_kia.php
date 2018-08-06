@@ -147,6 +147,7 @@ if($loggedIn == false){
 			$nedoc=$edocument.'.pdf';
 			$rutaxml="\\\\192.168.1.107\\gabdata\\CASAWIN\\cove\\ventanilla\\edocumentpdf\\".($numrefeo!='' ? $numrefeo : $referencia)."\\".$nedoc;
 			$rutaExpIDE = 'documentos/'.$nom_arch;
+			clearstatcache();
 			if(file_exists($rutaxml)){
 				if(!copy($rutaxml,$rutaExpIDE)){
 					$respuesta['Codigo'] = '-1';
@@ -165,7 +166,7 @@ if($loggedIn == false){
 			}
 		}
 		//COVES
-		$resCOVEpdf = generar_archivos_pdf_cove($referencia,'expediente');
+		$resCOVEpdf = generar_archivos_pdf_cove($referencia,'');
 		if($resCOVEpdf['Codigo'] != 1){
 			$respuesta['Codigo']=-1;
 			$respuesta['Mensaje'] = $resCOVEpdf['Mensaje'];
@@ -355,7 +356,7 @@ if($loggedIn == false){
 		$noZIP = preg_replace('/ +/', '-', $nPedimento);
 		$nombreArchivo = 'documentos/'.$noZIP.'.zip';
 		$zip = new ZipArchive();
-		$zip->open($nombreArchivo, ZipArchive::OVERWRITE);
+		$zip->open($nombreArchivo, ZIPARCHIVE::CREATE);// | ZIPARCHIVE::OVERWRITE
 		foreach( $aArchivos as $file) { 
 			$pos = strpos($file, 'COVE');
 			if ($pos === false) {
