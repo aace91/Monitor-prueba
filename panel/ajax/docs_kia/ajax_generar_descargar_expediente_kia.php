@@ -163,7 +163,6 @@ if($loggedIn == false){
 				eliminar_archivos_creados_expediente($aArchivos);
 				exit(json_encode($respuesta));
 			}
-			
 		}
 		//COVES
 		$resCOVEpdf = generar_archivos_pdf_cove($referencia,'expediente');

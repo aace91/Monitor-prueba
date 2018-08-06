@@ -322,22 +322,22 @@
 																
 																foreach( $emisor->getElementsByTagName("domicilio") as $domicilio ){
 																	$Calle_emisor = $domicilio->getElementsByTagName("calle")->item(0)->nodeValue;
-																	$Dir_emisor = split("COL.",$Calle_emisor);
+																	$Dir_emisor = explode ("COL.",$Calle_emisor);
 																	if(count($Dir_emisor )>1){
 																		$Calle_emisor = trim($Dir_emisor[0]);
 																		$Colonia_emisor = trim($Dir_emisor[1]);
 																	}
-																	$Dir_emisor = split("COL",$Calle_emisor);
+																	$Dir_emisor = explode ("COL",$Calle_emisor);
 																	if(count($Dir_emisor )>1){
 																		$Calle_emisor = trim($Dir_emisor[0]);
 																		$Colonia_emisor = trim($Dir_emisor[1]);
 																	}
-																	$Dir_emisor = split("COLONIA.",$Calle_emisor);
+																	$Dir_emisor = explode ("COLONIA.",$Calle_emisor);
 																	if(count($Dir_emisor )>1){
 																		$Calle_emisor = trim($Dir_emisor[0]);
 																		$Colonia_emisor = trim($Dir_emisor[1]);
 																	}
-																	$Dir_emisor = split("COLONIA",$Calle_emisor);
+																	$Dir_emisor = explode ("COLONIA",$Calle_emisor);
 																	if(count($Dir_emisor )>1){
 																		$Calle_emisor = trim($Dir_emisor[0]);
 																		$Colonia_emisor = trim($Dir_emisor[1]);
@@ -480,23 +480,23 @@
 																
 																foreach( $destinatario->getElementsByTagName("domicilio") as $domicilio ){
 																	$Calle_destinatario = $domicilio->getElementsByTagName("calle")->item(0)->nodeValue;
-																	$Dir_destinatario = split("COL.",$Calle_destinatario);
+																	$Dir_destinatario = explode ("COL.",$Calle_destinatario);
 																	$Colonia_destinatario = '';
 																	if(count($Dir_destinatario )>1){
 																		$Calle_destinatario = trim($Dir_destinatario[0]);
 																		$Colonia_destinatario = trim($Dir_destinatario[1]);
 																	}
-																	$Dir_destinatario = split("COL",$Calle_destinatario);
+																	$Dir_destinatario = explode ("COL",$Calle_destinatario);
 																	if(count($Dir_destinatario )>1){
 																		$Calle_destinatario= trim($Dir_destinatario[0]);
 																		$Colonia_destinatario = trim($Dir_destinatario[1]);
 																	}
-																	$Dir_destinatario = split("COLONIA.",$Calle_destinatario);
+																	$Dir_destinatario = explode ("COLONIA.",$Calle_destinatario);
 																	if(count($Dir_destinatario )>1){
 																		$Calle_destinatario = trim($Dir_destinatario[0]);
 																		$Colonia_destinatario = trim($Dir_destinatario[1]);
 																	}
-																	$Dir_destinatario = split("COLONIA",$Calle_destinatario);
+																	$Dir_destinatario = explode ("COLONIA",$Calle_destinatario);
 																	if(count($Dir_destinatario )>1){
 																		$Calle_destinatario = trim($Dir_destinatario[0]);
 																		$Colonia_destinatario = trim($Dir_destinatario[1]);
@@ -839,22 +839,22 @@
 															
 															foreach( $emisor->getElementsByTagName("domicilio") as $domicilio ){
 																$Calle_emisor = $domicilio->getElementsByTagName("calle")->item(0)->nodeValue;
-																$Dir_emisor = split("COL.",$Calle_emisor);
+																$Dir_emisor = explode ("COL.",$Calle_emisor);
 																if(count($Dir_emisor )>1){
 																	$Calle_emisor = trim($Dir_emisor[0]);
 																	$Colonia_emisor = trim($Dir_emisor[1]);
 																}
-																$Dir_emisor = split("COL",$Calle_emisor);
+																$Dir_emisor = explode ("COL",$Calle_emisor);
 																if(count($Dir_emisor )>1){
 																	$Calle_emisor = trim($Dir_emisor[0]);
 																	$Colonia_emisor = trim($Dir_emisor[1]);
 																}
-																$Dir_emisor = split("COLONIA.",$Calle_emisor);
+																$Dir_emisor = explode ("COLONIA.",$Calle_emisor);
 																if(count($Dir_emisor )>1){
 																	$Calle_emisor = trim($Dir_emisor[0]);
 																	$Colonia_emisor = trim($Dir_emisor[1]);
 																}
-																$Dir_emisor = split("COLONIA",$Calle_emisor);
+																$Dir_emisor = explode ("COLONIA",$Calle_emisor);
 																if(count($Dir_emisor )>1){
 																	$Calle_emisor = trim($Dir_emisor[0]);
 																	$Colonia_emisor = trim($Dir_emisor[1]);
@@ -978,23 +978,23 @@
 															
 															foreach( $destinatario->getElementsByTagName("domicilio") as $domicilio ){
 																$Calle_destinatario = $domicilio->getElementsByTagName("calle")->item(0)->nodeValue;
-																$Dir_destinatario = split("COL.",$Calle_destinatario);
+																$Dir_destinatario = explode ("COL.",$Calle_destinatario);
 																$Colonia_destinatario = '';
 																if(count($Dir_destinatario )>1){
 																	$Calle_destinatario = trim($Dir_destinatario[0]);
 																	$Colonia_destinatario = trim($Dir_destinatario[1]);
 																}
-																$Dir_destinatario = split("COL",$Calle_destinatario);
+																$Dir_destinatario = explode ("COL",$Calle_destinatario);
 																if(count($Dir_destinatario )>1){
 																	$Calle_destinatario= trim($Dir_destinatario[0]);
 																	$Colonia_destinatario = trim($Dir_destinatario[1]);
 																}
-																$Dir_destinatario = split("COLONIA.",$Calle_destinatario);
+																$Dir_destinatario = explode ("COLONIA.",$Calle_destinatario);
 																if(count($Dir_destinatario )>1){
 																	$Calle_destinatario = trim($Dir_destinatario[0]);
 																	$Colonia_destinatario = trim($Dir_destinatario[1]);
 																}
-																$Dir_destinatario = split("COLONIA",$Calle_destinatario);
+																$Dir_destinatario = explode ("COLONIA",$Calle_destinatario);
 																if(count($Dir_destinatario )>1){
 																	$Calle_destinatario = trim($Dir_destinatario[0]);
 																	$Colonia_destinatario = trim($Dir_destinatario[1]);
