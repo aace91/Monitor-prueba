@@ -75,13 +75,13 @@ function fcn_enviar_notificacion_salida($solicitud, $bEnviar) {
 			$__sReportadaAA = ((is_null($row->reportada_aa))? 'N' : $row->reportada_aa);
 			
 			if (is_null($row->nocliente)) {
-				$my_report = "C:\\websites\\monitor\\panel\\Carta_Instrucciones.rpt";
+				$my_report = dirname(dirname(__FILE__)) . "\\Carta_Instrucciones.rpt";
 				$selection_formula = '{salidas_expo.salidanumero} = '.$__sSolicitud;
 				
 				$respuesta = fcn_get_email_notificacion_new();
 			} else {
 				$bViejoEsquema = true;
-				$my_report = "C:\\websites\\monitor\\panel\\Carta_Instrucciones_old.rpt";
+				$my_report = dirname(dirname(__FILE__)) . "\\Carta_Instrucciones_old.rpt";
 				$selection_formula = '{salidas.salidanumero} = '.$__sSolicitud;
 				
 				$respuesta = fcn_get_email_notificacion_old($row->nocliente, $row->nombrecliente);
@@ -152,6 +152,7 @@ function fcn_enviar_notificacion_salida($solicitud, $bEnviar) {
 				$crapp = null;
 				
 				/****************************************************************************************/
+
 				if ($__sReportada != 'S' || $bEnviar == true) {
 					/* ..:: Revisamos si hay que notificar al agente aduanal ::.. */
 					$__sFacturasPendientes = fcn_verificar_envio_notificacion_aaa();
@@ -609,6 +610,7 @@ function fcn_get_file_send($sMyPdf, &$respuesta) {
 	
 	if ($sArchivos != '') {
 		$sComando = '"C:\Program Files\gs\gs9.23\bin\gswin64" -dBATCH -dNOPAUSE -q -dSAFER -sDEVICE=pdfwrite -sOutputFile='.$sFile.' '.$sArchivos;
+
 		$output = shell_exec($sComando);
 		if ($output != '') {
 			$respuesta['Codigo']=-1;

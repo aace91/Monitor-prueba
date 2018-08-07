@@ -80,16 +80,16 @@
 		$sRelacionDocsName = ((is_null($row->relacion_docs_name))? '': $row->relacion_docs_name);
 		
 		if (is_null($row->nocliente)) {
-			$my_report = "C:\\websites\\monitor".(($bDebug)? 'pruebas' : '')."\\panel\\Carta_Instrucciones_old_feb2018.rpt";
+			$my_report = __DIR__ . "\\Carta_Instrucciones_old_feb2018.rpt";
 			if (is_null($row->caja)) {
-				$my_report = "C:\\websites\\monitor".(($bDebug)? 'pruebas' : '')."\\panel\\Carta_Instrucciones.rpt";
+				$my_report =  __DIR__ . "\\Carta_Instrucciones.rpt";
 			}
 			
 			$selection_formula = '{salidas_expo.salidanumero} = '.$solicitud;
 			
 			fcn_get_email_notificacion_new();
 		} else {
-			$my_report = "C:\\websites\\monitor".(($bDebug)? 'pruebas' : '')."\\panel\\Carta_Instrucciones_old.rpt";
+			$my_report =  __DIR__ . "\\Carta_Instrucciones_old.rpt";
 			$selection_formula = '{salidas.salidanumero} = '.$solicitud;
 			
 			fcn_get_email_notificacion_old($row->nocliente, $row->nombrecliente);

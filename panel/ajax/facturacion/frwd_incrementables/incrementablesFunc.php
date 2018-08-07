@@ -362,7 +362,6 @@ function fcn_get_referencias_incorrectas($aReferenciasRemision) {
 							  tipobultos AS tipBultos ON tipBultos.Clave=detBultos.clavebulto
 						 WHERE detBultos.referencia='".$sReferencia."'";
 
-		error_log('fcn_get_referencias_incorrectas: INICIO');
 		$client = new nusoap_client($URL_bodega."webtools/ws_mdb/ws_mdb.php?wsdl","wsdl");
 		$err = $client->getError();
 		if ($err) {
@@ -382,7 +381,6 @@ function fcn_get_referencias_incorrectas($aReferenciasRemision) {
 			throw new Exception("Error al consultar información de bodega. Por favor contacte al administrador del sistema.". $err);
 		}
 
-		error_log('fcn_get_referencias_incorrectas: FIN');
 		if($result['Codigo']==1){
 			$bodegadet=json_decode($result['Adicional1']);
 			if (count($bodegadet) > 0) {
@@ -421,7 +419,6 @@ function fcn_get_referencias_incorrectas_cliente($aReferenciasRemision, $sIdClie
 						 FROM tblbod
 						 WHERE bodReferencia='".$sReferencia."'";
 
-		error_log('fcn_get_referencias_incorrectas_cliente: INICIO');
 		$client = new nusoap_client($URL_bodega."webtools/ws_mdb/ws_mdb.php?wsdl","wsdl");
 		$err = $client->getError();
 		if ($err) {
@@ -441,7 +438,6 @@ function fcn_get_referencias_incorrectas_cliente($aReferenciasRemision, $sIdClie
 			throw new Exception("Error al consultar información de bodega. Por favor contacte al administrador del sistema.". $err);
 		}
 
-		error_log('fcn_get_referencias_incorrectas_cliente: FIN');
 		if($result['Codigo']==1){
 			$bodegadet=json_decode($result['Adicional1']);
 			if (count($bodegadet) > 0) {
