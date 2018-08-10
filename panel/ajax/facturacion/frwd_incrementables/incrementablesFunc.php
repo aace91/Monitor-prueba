@@ -1,4 +1,6 @@
 <?php
+set_time_limit(240);
+
 include_once('./../../../../checklogin.php');
 include('./../../../../connect_dbsql.php');
 include('./../../../../url_archivos.php');
