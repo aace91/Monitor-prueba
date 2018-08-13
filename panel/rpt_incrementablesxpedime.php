@@ -274,7 +274,8 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 													<th class="text-center">CRUCE</th>
 													<th class="text-center">FECHA SALIDA</th>
 													<th class="text-center">N. CAJA</th>
-													<th class="text-center">TOTAL</th>
+													<th class="text-center">INCREMENTABLE</th>
+													<th class="text-center">FLETE</th>
 													<th class="text-center"></th>
 												</tr>
 											</thead>
@@ -282,7 +283,8 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 												<tr>
 													<th colspan="3" style="text-align:right !important;">TOTAL:</th>
 													<th id="dtfactura_items_total"></th>
-													<th class="text-center"></th>
+													<th></th>
+													<th></th>
 												</tr>
 											</tfoot>
 										</table>

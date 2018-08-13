@@ -255,7 +255,18 @@ function fcn_cargar_grid_detalle_incrementable(bReloadPaging) {
 					{ "data": "id_cruce" },
 					{ "data": "fecha_salida", "className": "text-center" },
 					{ "data": "caja", "className": "text-center" },
-					{ "data": "total", "className": "text-center" },
+					{ "data": "incrementable", "className": "text-right" },
+					{ 
+						"data": "flete",
+						"className": "text-right",
+						"mRender": function (data, type, row) {
+							if (data == '') {
+								return '<i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:#a94442;"></i>';
+							} else {
+								return data;
+							}
+						}
+					},
 					{   "data": null,
 						"className": "text-center",
 						"mRender": function (data, type, row) {
@@ -310,7 +321,9 @@ function fcn_cargar_grid_detalle_incrementable(bReloadPaging) {
 				],
 				footerCallback: function ( row, data, start, end, display ) {
 					var api = this.api(), data;
-		 
+					var nColIncrementable = 3;
+					var nColFlete = 4;
+
 					// Remove the formatting to get integer data for summation
 					var intVal = function ( i ) {
 						return typeof i === 'string' ?
@@ -320,25 +333,42 @@ function fcn_cargar_grid_detalle_incrementable(bReloadPaging) {
 					};
 		 
 					// Total over all pages
-					total = api
-						.column(3)
+					tIncrementable = api
+						.column(nColIncrementable)
+						.data()
+						.reduce( function (a, b) {
+							return intVal(a) + intVal(b);
+						}, 0);
+
+					tFlete = api
+						.column(nColFlete)
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0);
 		 
 					// Total over this page
-					pageTotal = api
-						.column(3, { page: 'current'} )
+					pIncrementable = api
+						.column(nColIncrementable, { page: 'current'} )
+						.data()
+						.reduce( function (a, b) {
+							return intVal(a) + intVal(b);
+						}, 0);
+					
+					pFlete = api
+						.column(nColFlete, { page: 'current'} )
 						.data()
 						.reduce( function (a, b) {
 							return intVal(a) + intVal(b);
 						}, 0);
 		 
 					// Update footer
-					$( api.column(3).footer() ).html(
-						//'$'+pageTotal +' ( $'+ total +' total)'
-						'$ ' + (total).toFixed(2)
+					$( api.column(nColIncrementable).footer() ).html(
+						'$ ' + (tIncrementable).toFixed(2)
+					);
+
+					$( api.column(nColFlete).footer() ).html(
+						'$ ' + (tFlete).toFixed(2)
 					);
 				}
 			});

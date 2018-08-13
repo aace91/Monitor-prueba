@@ -87,10 +87,13 @@ function fcn_table_detalle_incrementable(){
 	$primaryKey = 'id_cruce';
 
 	$columns = array(
-		array( 'db' => 'id_cruce',     'dt' => 'id_cruce' ),
-		array( 'db' => 'total',        'dt' => 'total' ),
-		array( 'db' => 'caja',         'dt' => 'caja' ),
-		array( 'db' => 'fecha_salida', 'dt' => 'fecha_salida')
+		array( 'db' => 'id_cruce',      'dt' => 'id_cruce' ),
+		array( 'db' => 'incrementable', 'dt' => 'incrementable' ),
+		array( 'db' => 'caja',          'dt' => 'caja' ),
+		array( 'db' => 'fecha_salida',  'dt' => 'fecha_salida'),
+		array( 'db' => 'flete',         'dt' => 'flete', 'formatter' => function( $d, $row ) {
+			return (($d == NULL)? '' : $d);
+		})
 	);
 
 	$sql_details = array(
@@ -101,16 +104,20 @@ function fcn_table_detalle_incrementable(){
 	);
 
 	$baseSql = "SELECT facRem.id_cruce, facRemDet.remision, bodRemDet.pedimento, facRemDet.referencia, 
-					   facRemDet.id_tarifa, TRUNCATE(SUM(facRemDet.cantidad * facRemDet.tarifa), 2) AS total,
+					   facRemDet.id_tarifa, TRUNCATE(SUM(facRemDet.cantidad * facRemDet.tarifa), 2) AS incrementable,
 					   CONCAT(DATE_FORMAT(bodSalida.fecha, '%d/%m/%Y' ), ' ', bodSalida.hora) AS fecha_salida,
-					   bodSalida.caja
+					   bodSalida.caja,
+					   TRUNCATE(
+				         (SELECT bodOrd.flete
+                          FROM bodega.`ordenes_b&g` AS bodOrd
+                          WHERE bodOrd.referencia=facRemDet.referencia), 2) AS flete
 				FROM facturacion.inc_remisiondet AS facRemDet INNER JOIN
 					 bodega.remisiondet AS bodRemDet ON bodRemDet.remision=facRemDet.remision AND
 														bodRemDet.referencia=facRemDet.referencia INNER JOIN
 					 facturacion.inc_remision AS facRem ON facRem.remision=facRemDet.remision INNER JOIN 
 					 facturacion.inc_cruces_impo AS facCruces ON facCruces.id_cruce=facRem.id_cruce INNER JOIN
 					 facturacion.clientes AS facCli ON facCli.id_inc_cliente=facCruces.id_inc_cliente LEFT JOIN
-					 facturacion.tarifas_sb AS facTarifa ON facTarifa.id_tarifa=facRemDet.id_tarifa  INNER JOIN
+					 facturacion.tarifas_sb AS facTarifa ON facTarifa.id_tarifa=facRemDet.id_tarifa INNER JOIN
 					 bodega.datos_generales_salidas AS bodSalida ON bodSalida.remision=facRemDet.remision
 				WHERE facCli.id_cliente=".$id_cliente." AND
 					  bodRemDet.pedimento='".$pedimento."' AND
@@ -135,7 +142,7 @@ function fcn_table_detalle_cruce(){
 		array( 'db' => 'remision',  'dt' => 'remision' ),
 		array( 'db' => 'id_cruce',  'dt' => 'id_cruce' ),
 		array( 'db' => 'pedimento', 'dt' => 'pedimento' ),
-		array( 'db' => 'aduana',    'dt' => 'tc' , 'formatter' => function( $aduana, $row ) {
+		array( 'db' => 'aduana',    'dt' => 'tc', 'formatter' => function( $aduana, $row ) {
 			if ($aduana == NULL || $aduana == 'ADUANA DESCONOCIDA'){
 				return (($aduana == NULL)? '' : $aduana);
 			} else {
