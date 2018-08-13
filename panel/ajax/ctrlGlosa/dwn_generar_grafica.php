@@ -1,4 +1,6 @@
 <?php
+set_time_limit(240);
+
 include_once('./../../../checklogin.php');
 require_once './../../../bower_components/PHPExcel/Classes/PHPExcel.php';
 
