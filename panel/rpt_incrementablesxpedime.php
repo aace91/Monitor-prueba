@@ -333,7 +333,7 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<!--Numeric-->
 	<script  type="text/javascript" language="javascript" src="../plugins/numeric/jquery.numeric.js"></script>
 	
-	<script src="../js/rpt_incrementablesxpedime.js?v=2018.06.12.1606"></script>
+	<script src="../js/rpt_incrementablesxpedime.js?v=2018.08.13.0900"></script>
 </body>
 
 </html>
