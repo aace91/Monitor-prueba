@@ -33,6 +33,10 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	
     <!-- Custom styles for this template -->
     <link href="../bootstrap/css/navbar.css" rel="stylesheet">
+
+	<!-- Select2 CSS -->
+	<link href="../bower_components/select2/dist/css/select2.min.css" rel="stylesheet" />
+	<link href="../bower_components/select2-bootstrap-theme/dist/select2-bootstrap.min.css" rel="stylesheet" />
 	
 	<!-- selectize CSS-->
 	<link href="../bower_components/selectize/dist/css/selectize.css" rel="stylesheet">
@@ -40,6 +44,9 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	
 	<!-- datepicker -->
 	<link href="../datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
+
+	<!-- FileInput -->
+	<link href="../bower_components/bootstrap-fileinput-4.2.3/css/fileinput.min.css" rel="stylesheet"/>
     
 	
 	<link rel="icon" type="image/ico" href="../favicon.ico" />
@@ -160,7 +167,7 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 		</div>
 
 		<!-- MODAL FRACCIONES -->
-		<div id="modal_fraccion" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="alta" aria-hidden="true" data-backdrop="static">
+		<div id="modal_fraccion" class="modal fade" role="dialog" aria-labelledby="alta" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -168,6 +175,14 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 						<h4 class="modal-title"><span id="lbl_titulo_agregar_fraccion"></span></h4>
 					</div>
 					<div class="modal-body">
+					<div class="row">
+							<div class="col-xs-12">
+								<div class="form-group">
+									<label>Cliente:</label>
+									<select class="form-control select2" id="sel_list_cliente"></select>
+								</div>
+							</div>
+						</div>
 						<div class="row">
 							<div class="col-xs-12">
 								<div class="form-group">
@@ -997,6 +1012,10 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	<script src="../editor/js/dataTables.editor.min.js"></script>
 	<script src="../editor/js/editor.bootstrap.min.js"></script>
 	<script src="../editor/js/editor.selectize.js"></script>
+
+	<!-- Fileinput JS -->
+	<script type="text/javascript" language="javascript" src="../bower_components/bootstrap-fileinput-4.2.3/js/fileinput.min.js"></script>
+	<script type="text/javascript" language="javascript" src="../bower_components/bootstrap-fileinput-4.2.3/js/locales/es.js"></script>
 	
 
     <script type="text/javascript" language="javascript" src="../bower_components/jszip/dist/jszip.min.js"></script>
@@ -1007,13 +1026,29 @@ if($loggedIn == false){ header("Location: ./../login.php"); }
 	
 	<!-- selectize JavaScript -->
 	<script src="../bower_components/selectize/dist/js/standalone/selectize.js"></script>
-	
+
+	<!-- Select2 -->
+    <script src="../bower_components/select2/dist/js/select2.min.js"></script>
+	<script src="../bower_components/select2/dist/js/i18n/es.js"></script>
+
 	<!-- boostrapselect JavaScript -->
 	<script src="../bower_components/bootstrap-select/js/bootstrap-select.js"></script>
 	<!-- datepicker -->
     <script src="../datepicker/js/bootstrap-datepicker.js"></script>
 	<!--Numeric-->
 	<script  type="text/javascript" language="javascript" src="../plugins/numeric/jquery.numeric.js"></script>
+
+	<!-- Moment -->
+	<script src="../bower_components/moment/min/moment.min.js" type="text/javascript" ></script>
+	
+	<!-- Bootstrap Datepicker -->
+	<script src="../bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" type="text/javascript" ></script>
+	
+	<!--TouchSpin-->
+	<script type="text/javascript" language="javascript" src="../bower_components/touchspin/jquery.bootstrap-touchspin.js"></script>
+	
+	<!--MaskedInput-->
+	<script  type="text/javascript" language="javascript" src="../plugins/maskedinput/jquery.maskedinput.min.js"></script>
 
 	<script src="../js/regla8va_steris.js?2018.03.22.1020"></script>
 </body>

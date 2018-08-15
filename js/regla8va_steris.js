@@ -61,6 +61,8 @@
 	$(document).ready(function () {
 		//Esta funcion se dispara cuando se terminan de cargar todos los elementos de la pagina { .js, .css, images, etc. }
 		application_load();
+
+		
 	});
 
 	function application_load() {
@@ -79,6 +81,7 @@
 			fnc_carga_grid_partidas_8va_manual_referencia();
 			
 			fnc_carga_grid_partidas_pedimento_cierre();
+
 			
 			$('#idt_mdl_fecha_vence').datepicker({
 				todayHighlight:true,
@@ -272,6 +275,7 @@
 		$("#itxt_mdl_fraccion_cantidad").val('');
 		$("#itxt_mdl_fraccion_valor").val('');
 		$("#itxt_mdl_fraccion_numero_permiso").val('');
+		$("#sel_list_cliente").val('');
 		$("#idt_mdl_fecha_vence").datepicker("setDate", new Date());
 		show_custom_function_error('', 'idiv_menseje_mdl_fraccion');
 	}
@@ -632,6 +636,7 @@
 			show_modal_error(strMensaje);
 		}
 	}
+
 
 	function fcn_procesar_referencia_r8va(){
 		//sAccion = 'Nuevo';
@@ -2288,6 +2293,35 @@
 			case 'Nuevo':
 				$("#lbl_titulo_agregar_fraccion").html('<i class="fa fa-plus" aria-hidden="true"></i> Nueva Fracci&oacute;n');
 				fnc_limpiar_controles_fraccion_mdl();
+				$("#sel_list_cliente").select2({
+						theme: "bootstrap",
+						width: "off",
+						placeholder: "Selecciona un Cliente",
+						ajax: {
+							url: "./func/buscarcliente.php",
+							type: "POST",
+							dataType: 'json',
+							delay: 250,
+							timeout: 10000,
+							data: function (params) {
+								return {
+									q: params.term // search term
+								//	action: 'buscalineat'
+								};
+							},
+							processResults: function (data, page) {
+							  // parse the results into the format expected by Select2.
+							  // since we are using custom formatting functions we do not need to
+							  // alter the remote JSON data
+							  return {
+								results: data.items
+							  };
+							},
+							cache: true,
+							minimumInputLength: 1
+						}
+					});
+					setTimeout(function (){$('#sel_list_cliente').select2('open');},500);
 				break;
 			case 'Editar':
 				$("#lbl_titulo_agregar_fraccion").html('<i class="fa fa-pencil" aria-hidden="true"></i> Editar Fracci&oacute;n');
@@ -2296,7 +2330,6 @@
 				$("#lbl_titulo_agregar_fraccion").html('Fracci&oacute;n');
 		}
 		$('#modal_fraccion').modal({show: true});
-		setTimeout(function (){$("#itxt_mdl_fraccion_descripcion").focus();},500);
 	}
 
 	function fnc_show_modal_procesar_referencia_r8va(){
